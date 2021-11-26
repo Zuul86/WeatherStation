@@ -6,10 +6,13 @@
 #include <ESP8266WiFi.h>
 #include <NTPClient.h>
 #include <WiFiUdp.h>
+#include "DHT.h"
 
+// Digital pin connected to the DHT sensor
+#define DHTPIN 14     
 // The MQTT topics that this device should publish/subscribe
-#define AWS_IOT_PUBLISH_TOPIC   "TEST/pub"
-#define AWS_IOT_SUBSCRIBE_TOPIC "TEST/sub"
+#define AWS_IOT_PUBLISH_TOPIC   "weatherData/pub"
+#define AWS_IOT_SUBSCRIBE_TOPIC "weatherData/sub"
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org");
@@ -20,6 +23,8 @@ PubSubClient client(net);
 BearSSL::PrivateKey pk(AWS_CERT_PRIVATE);
 BearSSL::X509List mycert(AWS_CERT_CRT);
 BearSSL::X509List x509(AWS_CERT_CA);
+
+DHT dht(DHTPIN, DHT22);
 
 void connectWiFi()
 {
@@ -61,8 +66,9 @@ void connectAWS()
 void publishMessage()
 {
   StaticJsonDocument<200> doc;
-  doc["time"] = millis();
-  doc["sensor_a0"] = "hi";
+  doc["time"] = timeClient.getEpochTime();
+  doc["sensor_h"] = dht.readHumidity();
+  doc["sensor_t"] = dht.readTemperature();
   char jsonBuffer[512];
   serializeJson(doc, jsonBuffer); // print to client
   client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
@@ -102,8 +108,8 @@ void reconnect() {
 
 
 void setup() {
-  
   Serial.begin(9600);
+  dht.begin();
   connectWiFi();
   connectAWS();
 }
