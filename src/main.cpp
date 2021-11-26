@@ -47,11 +47,9 @@ void connectAWS()
   }
 
   net.setX509Time(timeClient.getEpochTime());
-
   net.setClientRSACert(&mycert, &pk);
   net.setTrustAnchors(&x509);
 
-  // Connect to the MQTT broker on the AWS endpoint we defined earlier
   client.setServer(AWS_IOT_ENDPOINT, AWS_PORT);
 }
 
@@ -164,8 +162,6 @@ void reconnect() {
     }
   }
 }
-
-
 
 void setup() {
   Serial.begin(9600);
