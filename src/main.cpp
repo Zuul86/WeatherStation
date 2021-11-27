@@ -81,16 +81,18 @@ void publishWeatherData()
 void reconnect() {
   // Loop until we're reconnected
   while (!client.connected()) {
-    Serial.print("Attempting MQTT connection...");
+    Serial.println("Attempting MQTT connection...");
     // Attempt to connect
     if (client.connect(THINGNAME)) {
       Serial.println("AWS IoT Connected!");
     } else {
       Serial.print("failed, try again in 5 seconds");
+
       char buf[256];
       net.getLastSSLError(buf,256);
       Serial.println("WiFiClientSecure SSL error: ");
       Serial.println(buf);
+
       delay(5000);
     }
   }
@@ -106,12 +108,11 @@ void setup() {
 }
 
 void loop() {
-  
   if (!client.connected()) {
     reconnect();
   }
 
   client.loop();
   publishWeatherData();
-  delay(30000);
+  delay(DATA_COLLECTION_INTERVAL);
 }
