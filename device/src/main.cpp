@@ -67,7 +67,7 @@ void publishWeatherData()
   StaticJsonDocument<200> doc;
   float tempurature = dht.readTemperature();
 
-  doc["id"] = ESP.getChipId() + '_' + timeClient.getEpochTime();
+  doc["id"] = String(ESP.getChipId()) + "_" + String(timeClient.getEpochTime());
   doc["time"] = timeClient.getEpochTime();
   doc["sensor_h"] = dht.readHumidity();
   doc["sensor_t"] = tempurature;
