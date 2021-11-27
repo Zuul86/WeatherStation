@@ -1,3 +1,14 @@
-<div class="content" role="main">
-  Where am I in the dom?
+<div class="container">
+  <div class="row">
+      <div>Date</div>
+      <div>Humidity</div>
+      <div>Temperature(&deg;C)</div>
+      <div>Pressure(millibar)</div> 
+  </div>
+  <div *ngFor="let record of weatherData" class="row">
+    <div>{{ record.time | date: 'medium' }}</div>
+    <div>{{ record.sensor_h }}%</div>  
+    <div>{{ record.sensor_t }}</div>  
+    <div>{{ record.sensor_bp }}</div>  
+  </div>
 </div>
