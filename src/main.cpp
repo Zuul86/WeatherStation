@@ -21,7 +21,7 @@ BearSSL::PrivateKey pk(AWS_CERT_PRIVATE);
 BearSSL::X509List mycert(AWS_CERT_CRT);
 BearSSL::X509List x509(AWS_CERT_CA);
 
-DHT dht(DHTPIN, DHT22);
+DHT dht(DHT_PIN, DHT22);
 SFE_BMP180 pressure;
 
 void connectWiFi()
@@ -39,7 +39,7 @@ void connectWiFi()
   Serial.println(WiFi.localIP());
 }
 
-void connectAWS()
+void configurePubSubClient()
 {
   timeClient.begin();
   while(!timeClient.update())
@@ -59,19 +59,22 @@ double getPressure(double temperature)
   double P;
   delay(pressure.startPressure(3));
   delay(pressure.getPressure(P,temperature));
-  return(pressure.sealevel(P, 265.00));
+  return(pressure.sealevel(P, ALTITUDE_METERS));
 }
 
 void publishMessage()
 {
   StaticJsonDocument<200> doc;
+  float tempurature = dht.readTemperature();
+
   doc["time"] = timeClient.getEpochTime();
   doc["sensor_h"] = dht.readHumidity();
-  float tempurature = dht.readTemperature();
   doc["sensor_t"] = tempurature;
   doc["sensor_bp"] = getPressure(tempurature);
+
   char jsonBuffer[512];
-  serializeJson(doc, jsonBuffer); // print to client
+  serializeJson(doc, jsonBuffer);
+
   client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
 }
 
@@ -86,12 +89,12 @@ void reconnect() {
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
+
       char buf[256];
       net.getLastSSLError(buf,256);
       Serial.println("WiFiClientSecure SSL error: ");
       Serial.println(buf);
-      delay(20000);
+      delay(5000);
     }
   }
 }
@@ -105,7 +108,7 @@ void setup() {
     Serial.println("BMP180 init success");
   }
   connectWiFi();
-  connectAWS();
+  configurePubSubClient();
 }
 
 void loop() {
