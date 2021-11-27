@@ -1,0 +1,25 @@
+# this is an auto generated file. This will be overwritten
+mutation CreateWeatherData($input: CreateWeatherDataInput!) {
+  createWeatherData(input: $input) {
+    time
+    sensor_bp
+    sensor_t
+    sensor_h
+  }
+}
+mutation UpdateWeatherData($input: UpdateWeatherDataInput!) {
+  updateWeatherData(input: $input) {
+    time
+    sensor_bp
+    sensor_t
+    sensor_h
+  }
+}
+mutation DeleteWeatherData($input: DeleteWeatherDataInput!) {
+  deleteWeatherData(input: $input) {
+    time
+    sensor_bp
+    sensor_t
+    sensor_h
+  }
+}
