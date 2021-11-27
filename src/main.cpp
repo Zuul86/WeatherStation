@@ -17,9 +17,9 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org");
 WiFiClientSecure net = WiFiClientSecure();
 PubSubClient client(net);
 
-BearSSL::PrivateKey pk(AWS_CERT_PRIVATE);
-BearSSL::X509List mycert(AWS_CERT_CRT);
-BearSSL::X509List x509(AWS_CERT_CA);
+PrivateKey pk(AWS_CERT_PRIVATE);
+X509List mycert(AWS_CERT_CRT);
+X509List x509(AWS_CERT_CA);
 
 DHT dht(DHT_PIN, DHT22);
 SFE_BMP180 pressure;
@@ -62,7 +62,7 @@ double getPressure(double temperature)
   return(pressure.sealevel(P, ALTITUDE_METERS));
 }
 
-void publishMessage()
+void publishWeatherData()
 {
   StaticJsonDocument<200> doc;
   float tempurature = dht.readTemperature();
@@ -86,10 +86,7 @@ void reconnect() {
     if (client.connect(THINGNAME)) {
       Serial.println("AWS IoT Connected!");
     } else {
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
-
+      Serial.print("failed, try again in 5 seconds");
       char buf[256];
       net.getLastSSLError(buf,256);
       Serial.println("WiFiClientSecure SSL error: ");
@@ -103,10 +100,7 @@ void setup() {
   Serial.begin(9600);
   dht.begin();
   Wire.begin(SDA_PIN,SCL_PIN);
-
-  if (pressure.begin()){
-    Serial.println("BMP180 init success");
-  }
+  pressure.begin();
   connectWiFi();
   configurePubSubClient();
 }
@@ -118,6 +112,6 @@ void loop() {
   }
 
   client.loop();
-  publishMessage();
+  publishWeatherData();
   delay(30000);
 }
