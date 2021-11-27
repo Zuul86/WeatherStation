@@ -29,7 +29,7 @@ void connectWiFi()
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
-  Serial.println("Connecting to Wi-Fi");
+  Serial.print("Connecting to Wi-Fi");
 
   while (WiFi.status() != WL_CONNECTED){
     delay(500);
@@ -81,7 +81,7 @@ void publishWeatherData()
 void reconnect() {
   // Loop until we're reconnected
   while (!client.connected()) {
-    Serial.println("Attempting MQTT connection...");
+    Serial.print("Attempting MQTT connection...");
     // Attempt to connect
     if (client.connect(THINGNAME)) {
       Serial.println("AWS IoT Connected!");
