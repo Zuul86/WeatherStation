@@ -102,7 +102,7 @@ void reconnect() {
 void setup() {
   Serial.begin(9600);
   dht.begin();
-  Wire.begin(13,12);
+  Wire.begin(SDA_PIN,SCL_PIN);
 
   if (pressure.begin()){
     Serial.println("BMP180 init success");
