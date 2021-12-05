@@ -24,7 +24,7 @@ export class AppComponent implements OnInit {
    
     const thrityDaysAgo = this.getTime(30);
 
-    const result = await this.api.ListWeatherData({time: {gt: thrityDaysAgo}});
+    const result = await this.api.ListWeatherData({time: {gt: thrityDaysAgo}}, 1000);
     this.weatherData = result.items?.some ? result.items.map((x) => {
       return {...x, 
         time: new Date(x ? x.time * 1000: 0)
@@ -32,10 +32,6 @@ export class AppComponent implements OnInit {
     }) :  [];
   }
   
-}
-
-export class myInput implements  TableWeatherDataFilterInput{
-
 }
 
 export type WeatherDataModel = {
