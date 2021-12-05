@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { APIService, WeatherData } from './API.service';
+import { APIService, WeatherData, TableWeatherDataFilterInput, TableIntFilterInput } from './API.service';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +15,12 @@ export class AppComponent implements OnInit {
   }
 
   async ngOnInit() {
+    const thrityDaysAgo = new Date(new Date().getDate() - 30).getTime() / 1000;
+
+    let filter = <TableWeatherDataFilterInput>{};
+    filter.time = thrityDaysAgo as TableIntFilterInput;
     /* fetch restaurants when app loads */
+    console.log(filter)
     const result = await this.api.ListWeatherData();
     this.weatherData = result.items?.some ? result.items.map((x) => {
       return {...x, 
@@ -24,6 +29,10 @@ export class AppComponent implements OnInit {
     }) :  [];
   }
   
+}
+
+export class myInput implements  TableWeatherDataFilterInput{
+
 }
 
 export type WeatherDataModel = {
