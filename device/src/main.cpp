@@ -65,15 +65,27 @@ double getPressure(double temperature)
 void publishWeatherData()
 {
   StaticJsonDocument<200> doc;
-  float tempurature = dht.readTemperature();
 
-  doc["id"] = String(ESP.getChipId());
-  doc["time"] = timeClient.getEpochTime();
-  doc["sensor_h"] = dht.readHumidity();
-  doc["sensor_t"] = tempurature;
-  doc["sensor_bp"] = getPressure(tempurature);
-  doc["lat"] = LAT;
-  doc["long"] = LONG;
+  long time = timeClient.getEpochTime();
+  float temperature = dht.readTemperature();
+  float humidity = dht.readHumidity();
+
+  if(!isnan(temperature))
+  {
+    double pressure = getPressure(temperature);
+
+    doc["id"] = String(ESP.getChipId());
+    doc["time"] = time;
+    doc["sensor_h"] = humidity;
+    doc["sensor_t"] = temperature;
+    doc["sensor_bp"] = pressure;
+    doc["lat"] = LAT;
+    doc["long"] = LONG;
+  } 
+  else
+  {
+    Serial.println("error reading DHT22 sensor");
+  }
 
   char jsonBuffer[512];
   serializeJson(doc, jsonBuffer);
