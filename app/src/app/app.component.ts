@@ -14,14 +14,17 @@ export class AppComponent implements OnInit {
 
   }
 
-  async ngOnInit() {
-    const thrityDaysAgo = new Date(new Date().getDate() - 30).getTime() / 1000;
+  private getTime(numberOfDaysAgo: number) : number {
+    const now = new Date();
+    now.setDate(now.getDate() - numberOfDaysAgo);
+    return Math.floor(now.getTime() / 1000);
+  }
 
-    let filter = <TableWeatherDataFilterInput>{};
-    filter.time = thrityDaysAgo as TableIntFilterInput;
-    /* fetch restaurants when app loads */
-    console.log(filter)
-    const result = await this.api.ListWeatherData();
+  async ngOnInit() {
+   
+    const thrityDaysAgo = this.getTime(30);
+
+    const result = await this.api.ListWeatherData({time: {gt: thrityDaysAgo}});
     this.weatherData = result.items?.some ? result.items.map((x) => {
       return {...x, 
         time: new Date(x ? x.time * 1000: 0)
