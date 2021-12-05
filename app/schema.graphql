@@ -1,0 +1,82 @@
+﻿schema {
+  query: Query
+}
+
+type Query {
+  getWeatherData(time: Int!): WeatherData
+  listWeatherData(filter: TableWeatherDataFilterInput, limit: Int, nextToken: String): WeatherDataConnection
+}
+
+type WeatherData {
+  sensor_bp: Float
+  sensor_h: Float
+  sensor_t: Float
+  time: Int!
+}
+
+type WeatherDataConnection {
+  items: [WeatherData]
+  nextToken: String
+}
+
+input TableBooleanFilterInput {
+  eq: Boolean
+  ne: Boolean
+}
+
+input TableFloatFilterInput {
+  between: [Float]
+  contains: Float
+  eq: Float
+  ge: Float
+  gt: Float
+  le: Float
+  lt: Float
+  ne: Float
+  notContains: Float
+}
+
+input TableIDFilterInput {
+  beginsWith: ID
+  between: [ID]
+  contains: ID
+  eq: ID
+  ge: ID
+  gt: ID
+  le: ID
+  lt: ID
+  ne: ID
+  notContains: ID
+}
+
+input TableIntFilterInput {
+  between: [Int]
+  contains: Int
+  eq: Int
+  ge: Int
+  gt: Int
+  le: Int
+  lt: Int
+  ne: Int
+  notContains: Int
+}
+
+input TableStringFilterInput {
+  beginsWith: String
+  between: [String]
+  contains: String
+  eq: String
+  ge: String
+  gt: String
+  le: String
+  lt: String
+  ne: String
+  notContains: String
+}
+
+input TableWeatherDataFilterInput {
+  sensor_bp: TableFloatFilterInput
+  sensor_h: TableFloatFilterInput
+  sensor_t: TableFloatFilterInput
+  time: TableIntFilterInput
+}
