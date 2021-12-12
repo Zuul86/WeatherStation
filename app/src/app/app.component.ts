@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { APIService, WeatherData, TableWeatherDataFilterInput, TableIntFilterInput } from './API.service';
+import { APIService } from './API.service';
 
 @Component({
   selector: 'app-root',
@@ -7,8 +7,10 @@ import { APIService, WeatherData, TableWeatherDataFilterInput, TableIntFilterInp
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  title = 'app';
-  public weatherData: Array<WeatherDataModel> = [];
+  title = 'Weather Station';
+  
+  displayedColumns: string[] = ['readingTime', 'sensor_h', 'sensor_t', 'sensor_bp'];
+  weatherData: WeatherDataModel[] = [];
 
   constructor(private api: APIService){
 
@@ -27,15 +29,14 @@ export class AppComponent implements OnInit {
     const result = await this.api.ListWeatherData({time: {gt: thrityDaysAgo}}, 1000);
     this.weatherData = result.items?.some ? result.items.map((x) => {
       return {...x, 
-        time: new Date(x ? x.time * 1000: 0)
-      } as WeatherDataModel;
+        readingTime: new Date(x ? x.time * 1000: 0)
+      };
     }) :  [];
   }
-  
 }
 
-export type WeatherDataModel = {
-  time: Date;
+export interface WeatherDataModel {
+  readingTime: Date;
   sensor_bp?: number | null;
   sensor_t?: number | null;
   sensor_h?: number | null;
