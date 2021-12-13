@@ -1,43 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { APIService } from './API.service';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   title = 'Weather Station';
-  
-  displayedColumns: string[] = ['readingTime', 'sensor_h', 'sensor_t', 'sensor_bp'];
-  weatherData: WeatherDataModel[] = [];
-
-  constructor(private api: APIService){
-
-  }
-
-  private getTime(numberOfDaysAgo: number) : number {
-    const now = new Date();
-    now.setDate(now.getDate() - numberOfDaysAgo);
-    return Math.floor(now.getTime() / 1000);
-  }
-
-  async ngOnInit() {
-   
-    const thrityDaysAgo = this.getTime(30);
-
-    const result = await this.api.ListWeatherData({time: {gt: thrityDaysAgo}}, 1000);
-    this.weatherData = result.items?.some ? result.items.map((x) => {
-      return {...x, 
-        readingTime: new Date(x ? x.time * 1000: 0)
-      };
-    }) :  [];
-  }
 }
-
-export interface WeatherDataModel {
-  readingTime: Date;
-  sensor_bp?: number | null;
-  sensor_t?: number | null;
-  sensor_h?: number | null;
-};

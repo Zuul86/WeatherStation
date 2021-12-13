@@ -7,11 +7,13 @@ import { AmplifyUIAngularModule } from '@aws-amplify/ui-angular';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatTableModule } from '@angular/material/table'  
+import { MatTableModule } from '@angular/material/table';
+import { SensorDataComponent } from './sensor-data/sensor-data.component'  
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    SensorDataComponent
   ],
   imports: [
     BrowserModule,
