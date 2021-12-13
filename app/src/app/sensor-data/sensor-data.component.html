@@ -5,22 +5,22 @@
   
     <!-- Position Column -->
     <ng-container matColumnDef="readingTime">
-      <th mat-header-cell *matHeaderCellDef> Date</th>
+      <th mat-header-cell *matHeaderCellDef>Date</th>
       <td mat-cell *matCellDef="let element"> {{element.readingTime | date: 'medium'}} </td>
     </ng-container>
   
     <ng-container matColumnDef="sensor_h">
-      <th mat-header-cell *matHeaderCellDef> Humidity</th>
+      <th mat-header-cell *matHeaderCellDef>Humidity</th>
       <td mat-cell *matCellDef="let element"> {{element.sensor_h}} </td>
     
     </ng-container>
     <ng-container matColumnDef="sensor_t">
-      <th mat-header-cell *matHeaderCellDef> Temp</th>
+      <th mat-header-cell *matHeaderCellDef>Temperature (&deg;{{temperatureUnit}})</th>
       <td mat-cell *matCellDef="let element"> {{element.sensor_t}} </td>
     </ng-container>
   
     <ng-container matColumnDef="sensor_bp">
-      <th mat-header-cell *matHeaderCellDef> Pressure</th>
+      <th mat-header-cell *matHeaderCellDef>Pressure</th>
       <td mat-cell *matCellDef="let element"> {{element.sensor_bp}} </td>
     </ng-container>
   

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { APIService } from '../API.service';
 
 @Component({
@@ -7,6 +7,8 @@ import { APIService } from '../API.service';
   styleUrls: ['./sensor-data.component.scss']
 })
 export class SensorDataComponent implements OnInit {
+  @Input() temperatureUnit!: string;
+
   title = 'Weather Station';
   
   displayedColumns: string[] = ['readingTime', 'sensor_t', 'sensor_h', 'sensor_bp'];
@@ -22,13 +24,22 @@ export class SensorDataComponent implements OnInit {
     return Math.floor(now.getTime() / 1000);
   }
 
+  private convertUnit(temperatureInCelcius: number | null | undefined) : number | null {
+    const temp = this.temperatureUnit === "F" && temperatureInCelcius ? 
+      (temperatureInCelcius * 1.8) + 32 : 
+      temperatureInCelcius;
+
+    return temp ? Math.round(temp) : null;
+  }
+
   async ngOnInit() { 
     const thrityDaysAgo = this.getTime(30);
-
+    
     const result = await this.api.ListWeatherData({time: {gt: thrityDaysAgo}}, 1000);
     this.weatherData = result.items?.some ? result.items.map((x) => {
       return {...x, 
-        readingTime: new Date(x ? x.time * 1000: 0)
+        readingTime: new Date(x ? x.time * 1000: 0),
+        sensor_t: this.convertUnit(x?.sensor_t)
       };
     }) :  [];
   }
