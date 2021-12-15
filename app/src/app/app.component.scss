@@ -1,3 +1,15 @@
-.app-container {
-    margin: 15px;
+.mat-drawer{
+    width: 25%;
+}
+
+.settings-drawer{
+    h4{
+        text-align: center;
+        margin-top: 16px;
+        font-family: 'Courier New', Courier, monospace;
+    }
+    
+    .temperature-unit-control{
+        margin: 16px;
+    }
 }

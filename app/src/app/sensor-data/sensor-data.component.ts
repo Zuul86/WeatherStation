@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { APIService } from '../API.service';
 
 @Component({
@@ -6,7 +6,7 @@ import { APIService } from '../API.service';
   templateUrl: './sensor-data.component.html',
   styleUrls: ['./sensor-data.component.scss']
 })
-export class SensorDataComponent implements OnInit {
+export class SensorDataComponent implements OnChanges {
   @Input() temperatureUnit!: string;
 
   title = 'Weather Station';
@@ -32,7 +32,7 @@ export class SensorDataComponent implements OnInit {
     return temp ? Math.round(temp) : null;
   }
 
-  async ngOnInit() { 
+  async ngOnChanges() { 
     const thrityDaysAgo = this.getTime(30);
     
     const result = await this.api.ListWeatherData({time: {gt: thrityDaysAgo}}, 1000);
