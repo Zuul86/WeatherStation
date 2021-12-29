@@ -11,7 +11,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDrawerContainer, MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
@@ -34,8 +34,7 @@ import { SensorDataComponent } from './features/weather-data-table/components/we
     MatButtonModule,
     MatSidenavModule,
     MatDividerModule,
-    MatButtonToggleModule,
-    MatDrawerContainer
+    MatButtonToggleModule
   ],
   providers: [],
   bootstrap: [AppComponent]
