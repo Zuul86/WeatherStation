@@ -15,7 +15,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
-import { SensorDataComponent } from './sensor-data/sensor-data.component';
+import { SensorDataComponent } from './features/weather-data-table/components/weather-data-table/sensor-data.component';
 
 @NgModule({
   declarations: [

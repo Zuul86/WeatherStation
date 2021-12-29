@@ -1,5 +1,6 @@
 import { Component, Input, OnChanges } from '@angular/core';
-import { APIService } from '../API.service';
+import { APIService } from 'src/app/API.service';
+import { WeatherDataModel } from '../../models/weather-data.model';
 
 @Component({
   selector: 'app-sensor-data-table',
@@ -44,10 +45,3 @@ export class SensorDataComponent implements OnChanges {
     }) :  [];
   }
 }
-
-export interface WeatherDataModel {
-  readingTime: Date;
-  sensor_bp?: number | null;
-  sensor_t?: number | null;
-  sensor_h?: number | null;
-};
