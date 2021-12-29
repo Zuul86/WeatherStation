@@ -1,11 +1,13 @@
 import { TestBed } from '@angular/core/testing';
+import { MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [
-        AppComponent
+        AppComponent,
+        MatButtonToggleGroup
       ],
     }).compileComponents();
   });
@@ -16,16 +18,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'app'`, () => {
+  it(`should have as title 'Weather Station'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('app');
+    expect(app.title).toEqual('Weather Station');
   });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('app app is running!');
+    expect(compiled.querySelector('mat-toolbar span')?.textContent).toContain('WeatherNerd');
   });
 });
