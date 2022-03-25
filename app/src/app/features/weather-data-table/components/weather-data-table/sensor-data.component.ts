@@ -37,7 +37,7 @@ export class SensorDataComponent implements OnChanges {
     const thrityDaysAgo = this.getTime(30);
     
     const result = await this.api.ListWeatherData({time: {gt: thrityDaysAgo}}, 1000);
-    this.weatherData = result.items?.some ? result.items.map((x) => {
+    this.weatherData = result.items?.length ? result.items.map((x) => {
       return {...x, 
         readingTime: new Date(x ? x.time * 1000: 0),
         sensor_t: this.convertUnit(x?.sensor_t)
