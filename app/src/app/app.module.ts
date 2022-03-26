@@ -17,12 +17,14 @@ import {ApolloModule, APOLLO_OPTIONS} from 'apollo-angular';
 import {HttpLink} from 'apollo-angular/http';
 import {ApolloLink, InMemoryCache} from '@apollo/client/core';
 
-import { SensorDataComponent } from './features/weather-data-table/components/weather-data-table/sensor-data.component';
+import { SensorDataComponent } from './features/weather-data-table/components/sensor-data/sensor-data.component';
+import { ConvertTemperaturePipe } from './features/weather-data-table/pipes/convert-temperature.pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
-    SensorDataComponent
+    SensorDataComponent,
+    ConvertTemperaturePipe
   ],
   imports: [
     BrowserModule,
