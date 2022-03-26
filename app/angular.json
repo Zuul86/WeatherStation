@@ -20,22 +20,6 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "allowedCommonJsDependencies": [
-              "lodash",
-              "uuid",
-              "buffer",
-              "url",
-              "@aws-crypto/sha256-js",
-              "ulid",
-              "camelcase-keys",
-              "@aws-crypto/sha256-browser",
-              "fast-xml-parser",
-              "@aws-crypto/crc32",
-              "crypto-js/core",
-              "crypto-js/hmac-sha256",
-              "crypto-js/lib-typedarrays",
-              "isomorphic-unfetch"
-            ],
             "outputPath": "dist/app",
             "index": "src/index.html",
             "main": "src/main.ts",
