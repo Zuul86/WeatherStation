@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges } from '@angular/core';
-import { WeatherDataService } from 'src/app/weatherdata-api.service';
+import { WeatherDataService } from 'src/app/services/weatherdata-api.service';
 import { WeatherDataModel } from '../../../../models/weather-data.model';
 
 @Component({

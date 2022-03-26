@@ -2,8 +2,8 @@
 import { Injectable } from "@angular/core";
 import { Apollo, gql } from "apollo-angular";
 import { map, Observable, mergeMap } from "rxjs";
-import { WeatherDataModel } from "./models/weather-data.model";
-import { ApiResult } from "./models/api-result.model";
+import { WeatherDataModel } from "../models/weather-data.model";
+import { ApiResult } from "../models/api-result.model";
 
 const query = gql`
 query MyQuery {
@@ -48,7 +48,7 @@ export class WeatherDataService {
               barametricPressure: i.sensor_bp,
               temperature: i.sensor_t,
               humidity: i.sensor_h,
-              readingTime: new Date(x ? i.time * 1000 : 0)
+              readingTime: new Date(i.time * 1000)
             };
           }),
           isLoading: x.loading
