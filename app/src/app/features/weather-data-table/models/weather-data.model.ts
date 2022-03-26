@@ -1,6 +1,6 @@
-export type WeatherDataModel = {
+export interface WeatherDataModel {
     readingTime: Date;
-    sensor_bp?: number | null;
-    sensor_t?: number | null;
-    sensor_h?: number | null;
+    barametricPressure?: number | null;
+    tempurature?: number | null;
+    humidity?: number | null;
 };

@@ -12,6 +12,11 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
+import {HttpClientModule, HttpHeaders} from '@angular/common/http';
+import {ApolloModule, APOLLO_OPTIONS} from 'apollo-angular';
+import {HttpLink} from 'apollo-angular/http';
+import {ApolloLink, InMemoryCache} from '@apollo/client/core';
+
 import { SensorDataComponent } from './features/weather-data-table/components/weather-data-table/sensor-data.component';
 
 @NgModule({
@@ -29,9 +34,38 @@ import { SensorDataComponent } from './features/weather-data-table/components/we
     MatButtonModule,
     MatSidenavModule,
     MatDividerModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    ApolloModule, 
+    HttpClientModule
   ],
-  providers: [],
+  providers: [
+    {
+      provide: APOLLO_OPTIONS,
+      useFactory: (httpLink: HttpLink) => {
+        const http = httpLink.create({
+          uri: 'https://vv6w2uq4ojcw7ocbjl4btm5spa.appsync-api.us-west-2.amazonaws.com/graphql',
+        })
+
+        const middleware = new ApolloLink((operation, forward) => {
+          operation.setContext({
+            headers: new HttpHeaders().set(
+              'x-api-key',
+              'da2-vgod6roy2nd4xplovxzo3bjmyu',
+            ),
+          });
+          return forward(operation);
+        });
+
+        const link = middleware.concat(http);
+
+        return {
+          link,
+          cache: new InMemoryCache(),
+        };
+      },
+      deps: [HttpLink],
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
