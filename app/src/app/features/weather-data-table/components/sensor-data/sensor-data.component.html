@@ -10,7 +10,7 @@
   </ng-container>
   <ng-container matColumnDef="sensor_t">
     <th mat-header-cell *matHeaderCellDef>Temperature (&deg;{{temperatureUnit}})</th>
-    <td mat-cell *matCellDef="let element"> {{element.temperature  | convertTemperature: 'F'}} </td>
+    <td mat-cell *matCellDef="let element"> {{element.temperature  | convertTemperature: temperatureUnit}} </td>
   </ng-container>
   <ng-container matColumnDef="sensor_bp">
     <th mat-header-cell *matHeaderCellDef>Pressure (millibar)</th>
