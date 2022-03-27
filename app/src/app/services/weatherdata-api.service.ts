@@ -7,8 +7,7 @@ import { ApiResult } from "../models/api-result.model";
 
 const query = gql`
 query MyQuery {
-  listWeatherData {
-    nextToken
+  listWeatherData(limit: 1000) {
     items {
       sensor_bp
       sensor_h

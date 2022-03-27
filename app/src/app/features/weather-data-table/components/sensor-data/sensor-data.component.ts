@@ -1,4 +1,5 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { WeatherDataService } from 'src/app/services/weatherdata-api.service';
 import { WeatherDataModel } from '../../../../models/weather-data.model';
 
@@ -7,7 +8,7 @@ import { WeatherDataModel } from '../../../../models/weather-data.model';
   templateUrl: './sensor-data.component.html',
   styleUrls: ['./sensor-data.component.scss']
 })
-export class SensorDataComponent implements OnChanges {
+export class SensorDataComponent implements OnChanges, OnDestroy {
   @Input() temperatureUnit!: string;
   
   title = 'Weather Station';
@@ -23,11 +24,17 @@ export class SensorDataComponent implements OnChanges {
     return Math.floor(now.getTime() / 1000);
   }
 
+  weatherDataSubscription: Subscription = new Subscription;
+
   ngOnChanges() { 
     const thrityDaysAgo = this.getTime(30);
     
-    this.api.ListWeatherData({time: {gt: thrityDaysAgo}}, 1000).subscribe(x => {
+    this.weatherDataSubscription = this.api.ListWeatherData(null, 1000).subscribe(x => {
       this.weatherData = x.data;
     });
+  }
+
+  ngOnDestroy(){
+    this.weatherDataSubscription.unsubscribe();
   }
 }
