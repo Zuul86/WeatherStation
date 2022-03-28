@@ -4,10 +4,10 @@
       <h4>Weather Station #47</h4>
       <mat-divider></mat-divider>
       <mat-button-toggle-group #group="matButtonToggleGroup" value="F" class="temperature-unit-control">
-        <mat-button-toggle value="F" aria-label="Farenheit">
+        <mat-button-toggle value="F" aria-label="Farenheit" (change)="onTemperatureUnitChange($event.value)">
           &deg;F
         </mat-button-toggle>
-        <mat-button-toggle value="C" aria-label="Celcius">
+        <mat-button-toggle value="C" aria-label="Celcius" (change)="onTemperatureUnitChange($event.value)">
           &deg;C
         </mat-button-toggle>
       </mat-button-toggle-group> 
@@ -20,6 +20,6 @@
       </button>
       <span>WeatherNerd</span>
     </mat-toolbar>
-    <app-sensor-data-table [temperatureUnit]="group.value"></app-sensor-data-table>
+    <router-outlet></router-outlet>
   </div>
 </mat-drawer-container>

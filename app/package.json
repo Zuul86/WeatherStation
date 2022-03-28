@@ -21,6 +21,7 @@
     "@angular/platform-browser-dynamic": "~13.3.0",
     "@angular/router": "~13.3.0",
     "@apollo/client": "^3.5.10",
+    "@okta/okta-auth-js": "^6.3.0",
     "apollo-angular": "^3.0.0",
     "graphql": "^16.3.0",
     "rxjs": "~7.4.0",

@@ -19,12 +19,16 @@ import {ApolloLink, InMemoryCache} from '@apollo/client/core';
 
 import { SensorDataComponent } from './features/weather-data-table/components/sensor-data/sensor-data.component';
 import { ConvertTemperaturePipe } from './features/weather-data-table/pipes/convert-temperature.pipe';
+import { LoginPageComponent } from './pages/login-page/login-page.component';
+import { WeatherDashboardPageComponent } from './pages/weather-dashboard-page/weather-dashboard-page.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     SensorDataComponent,
-    ConvertTemperaturePipe
+    ConvertTemperaturePipe,
+    LoginPageComponent,
+    WeatherDashboardPageComponent
   ],
   imports: [
     BrowserModule,
