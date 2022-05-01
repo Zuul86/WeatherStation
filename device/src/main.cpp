@@ -8,6 +8,7 @@
 #include "DHT.h"
 #include <SFE_BMP180.h>
 #include <Wire.h>
+#include <WiFiManager.h> 
 
 #include "secrets.h"
 
@@ -113,12 +114,17 @@ void reconnect() {
   }
 }
 
+WiFiManager wifiManager;
+
 void setup() {
   Serial.begin(9600);
   dht.begin();
   Wire.begin(SDA_PIN,SCL_PIN);
   pressure.begin();
-  connectWiFi();
+  //connectWiFi();
+  WiFi.disconnect(true);
+  delay(10000);
+  wifiManager.autoConnect("ZOMBIE");
   configurePubSubClient();
 }
 
