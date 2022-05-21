@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { NgxsModule } from '@ngxs/store';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -12,15 +13,16 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
-import {HttpClientModule, HttpHeaders} from '@angular/common/http';
-import {ApolloModule, APOLLO_OPTIONS} from 'apollo-angular';
-import {HttpLink} from 'apollo-angular/http';
-import {ApolloLink, InMemoryCache} from '@apollo/client/core';
+import { HttpClientModule, HttpHeaders } from '@angular/common/http';
+import { ApolloModule, APOLLO_OPTIONS } from 'apollo-angular';
+import { HttpLink } from 'apollo-angular/http';
+import { ApolloLink, InMemoryCache } from '@apollo/client/core';
 
 import { SensorDataComponent } from './features/weather-data-table/components/sensor-data/sensor-data.component';
 import { ConvertTemperaturePipe } from './features/weather-data-table/pipes/convert-temperature.pipe';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { WeatherDashboardPageComponent } from './pages/weather-dashboard-page/weather-dashboard-page.component';
+import { environment } from 'src/environments/environment';
 
 @NgModule({
   declarations: [
@@ -42,7 +44,8 @@ import { WeatherDashboardPageComponent } from './pages/weather-dashboard-page/we
     MatDividerModule,
     MatButtonToggleModule,
     ApolloModule, 
-    HttpClientModule
+    HttpClientModule,
+    NgxsModule.forRoot([], {developmentMode: !environment.production})
   ],
   providers: [
     {

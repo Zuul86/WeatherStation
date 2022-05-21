@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Store } from '@ngxs/store';
 
 @Component({
   selector: 'app-weather-dashboard-page',
@@ -8,7 +8,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class WeatherDashboardPageComponent implements OnInit {
 
-  constructor(private route: ActivatedRoute) { }
+  constructor(private store: Store) { }
 
   ngOnInit(): void {
 
