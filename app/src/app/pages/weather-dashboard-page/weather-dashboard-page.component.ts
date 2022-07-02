@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Store } from '@ngxs/store';
 
 @Component({
   selector: 'app-weather-dashboard-page',
@@ -6,5 +7,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./weather-dashboard-page.component.scss']
 })
 export class WeatherDashboardPageComponent {
+
+  constructor(private store: Store) { }
 
 }
