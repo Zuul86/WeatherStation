@@ -4,8 +4,12 @@
         margin-top: 16px;
         font-family: "Courier New", Courier, monospace;
     }
-
-    .temperature-unit-control {
-        margin: 16px;
+    
+    .setting-controls {
+        display: flex;
+        flex-direction: column;
+        div{
+            margin: 16px;
+        }
     }
 }
