@@ -30,6 +30,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { OktaAuthModule, OKTA_CONFIG } from '@okta/okta-angular';
 import { OktaAuth } from '@okta/okta-auth-js';
 import { LoginButtonComponent } from './features/login-button/login-button.component';
+import { ProfileComponent } from './features/profile/profile.component';
 
 const oktaAuth = new OktaAuth({
   issuer: 'https://dev-68348927.okta.com/oauth2/default',
@@ -44,7 +45,8 @@ const oktaAuth = new OktaAuth({
     ConvertTemperaturePipe,
     WeatherDashboardPageComponent,
     MenuComponent,
-    LoginButtonComponent
+    LoginButtonComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,
