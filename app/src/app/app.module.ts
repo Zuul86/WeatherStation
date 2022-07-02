@@ -24,6 +24,8 @@ import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { WeatherDashboardPageComponent } from './pages/weather-dashboard-page/weather-dashboard-page.component';
 import { MenuComponent } from './features/menu/menu.component';
 import { environment } from 'src/environments/environment';
+import { AppSettingsState } from './state/app-settings.state';
+import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 
 @NgModule({
   declarations: [
@@ -47,7 +49,8 @@ import { environment } from 'src/environments/environment';
     MatButtonToggleModule,
     ApolloModule,
     HttpClientModule,
-    NgxsModule.forRoot([], { developmentMode: !environment.production })
+    NgxsModule.forRoot([AppSettingsState], { developmentMode: !environment.production }),
+    NgxsReduxDevtoolsPluginModule.forRoot()
   ],
   providers: [
     {

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Store } from '@ngxs/store';
+import { UpdateTemperatureUnit } from 'src/app/actions/update-temperature-unit.action';
 
 @Component({
   selector: 'app-menu',
@@ -8,13 +9,9 @@ import { Router } from '@angular/router';
 })
 export class MenuComponent {
 
-  constructor(private router: Router) { }
+  constructor(private store: Store) { }
 
   onTemperatureUnitChange(value: string) {
-    this.router.navigate(['/'], {
-      state: {
-        unit: value
-      }
-    })
+    this.store.dispatch(new UpdateTemperatureUnit(value));
   }
 }
