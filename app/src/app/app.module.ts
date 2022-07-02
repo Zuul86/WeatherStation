@@ -21,6 +21,7 @@ import { SensorDataComponent } from './features/weather-data-table/components/se
 import { ConvertTemperaturePipe } from './features/weather-data-table/pipes/convert-temperature.pipe';
 import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { WeatherDashboardPageComponent } from './pages/weather-dashboard-page/weather-dashboard-page.component';
+import { MenuComponent } from './features/menu/menu.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { WeatherDashboardPageComponent } from './pages/weather-dashboard-page/we
     SensorDataComponent,
     ConvertTemperaturePipe,
     LoginPageComponent,
-    WeatherDashboardPageComponent
+    WeatherDashboardPageComponent,
+    MenuComponent
   ],
   imports: [
     BrowserModule,

@@ -7,14 +7,5 @@ import { Router } from '@angular/router';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  constructor(private router: Router){ }
   title = 'Weather Station';
-
-  onTemperatureUnitChange(value: string) {
-    this.router.navigate(['/'],{
-      state:{
-        unit: value
-      }
-    })
-  }
 }
