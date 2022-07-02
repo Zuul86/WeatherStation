@@ -23,9 +23,7 @@ export class LoginButtonComponent implements OnInit {
   }
 
   public async signIn(): Promise<void> {
-    await this.oktaAuth.signInWithRedirect().then(
-      _ => this.router.navigate(['/profile'])
-    );
+    await this.oktaAuth.signInWithRedirect();
   }
 
   public async signOut(): Promise<void> {

@@ -1,3 +1,4 @@
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { AppComponent } from './app.component';
@@ -9,6 +10,7 @@ describe('AppComponent', () => {
         AppComponent,
         MatButtonToggleGroup
       ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
   });
 

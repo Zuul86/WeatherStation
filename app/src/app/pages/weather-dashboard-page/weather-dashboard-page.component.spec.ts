@@ -1,4 +1,6 @@
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NgxsModule } from '@ngxs/store';
 
 import { WeatherDashboardPageComponent } from './weather-dashboard-page.component';
 
@@ -8,9 +10,13 @@ describe('WeatherDashboardPageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ WeatherDashboardPageComponent ]
+      declarations: [WeatherDashboardPageComponent],
+      imports: [
+        NgxsModule.forRoot()
+      ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {
