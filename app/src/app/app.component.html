@@ -3,11 +3,13 @@
     <app-menu></app-menu>
   </mat-drawer>
   <div>
-    <mat-toolbar>
+    <mat-toolbar color="primary">
       <button mat-icon-button aria-label="menu" (click)="drawer.toggle()">
         <mat-icon>menu</mat-icon>
       </button>
       <span>WeatherNerd</span>
+      <div class="spacer"></div>
+      <app-profile></app-profile>
     </mat-toolbar>
     <router-outlet></router-outlet>
   </div>
