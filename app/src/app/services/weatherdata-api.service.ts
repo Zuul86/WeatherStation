@@ -1,7 +1,7 @@
 
 import { Injectable } from "@angular/core";
 import { Apollo, gql } from "apollo-angular";
-import { map, Observable, mergeMap } from "rxjs";
+import { map, Observable } from "rxjs";
 import { WeatherDataModel } from "../models/weather-data.model";
 import { ApiResult } from "../models/api-result.model";
 
@@ -21,10 +21,12 @@ query MyQuery {
 type ListDataQueryResult = {
   listWeatherData: {
     items: [
-      { sensor_bp: number, 
-        sensor_h: number, 
-        sensor_t: number, 
-        time: number }
+      {
+        sensor_bp: number,
+        sensor_h: number,
+        sensor_t: number,
+        time: number
+      }
     ]
   }
 }

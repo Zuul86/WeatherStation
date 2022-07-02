@@ -34,8 +34,12 @@
             "prefix": "app",
             "style": "kebab-case"
           }
-        ]
-      }
+        ],
+        "unused-imports/no-unused-imports": "error"
+      },
+      "plugins": [
+        "unused-imports"
+      ]
     },
     {
       "files": [
