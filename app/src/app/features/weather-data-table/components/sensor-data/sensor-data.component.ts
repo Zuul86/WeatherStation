@@ -1,40 +1,33 @@
-import { Component, Input, OnChanges, OnDestroy } from '@angular/core';
+import { Component, Input, OnDestroy, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { WeatherDataService } from 'src/app/services/weatherdata-api.service';
 import { WeatherDataModel } from '../../../../models/weather-data.model';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-sensor-data-table',
   templateUrl: './sensor-data.component.html',
   styleUrls: ['./sensor-data.component.scss']
 })
-export class SensorDataComponent implements OnChanges, OnDestroy {
-  @Input() temperatureUnit!: string;
-  
-  title = 'Weather Station';
-  
+export class SensorDataComponent implements OnDestroy {
+
+  dataSource!: MatTableDataSource<WeatherDataModel>;
   displayedColumns: string[] = ['readingTime', 'sensor_t', 'sensor_h', 'sensor_bp'];
-  weatherData: WeatherDataModel[] = [];
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @Input() temperatureUnit!: string;
+  title = 'Weather Station';
 
-  constructor(private api: WeatherDataService){}
+  private weatherDataSubscription: Subscription;
 
-  private getTime(numberOfDaysAgo: number) : number {
-    const now = new Date();
-    now.setDate(now.getDate() - numberOfDaysAgo);
-    return Math.floor(now.getTime() / 1000);
-  }
-
-  weatherDataSubscription: Subscription = new Subscription;
-
-  ngOnChanges() { 
-    const thrityDaysAgo = this.getTime(30);
-    
+  constructor(private api: WeatherDataService) {
     this.weatherDataSubscription = this.api.ListWeatherData(null, 1000).subscribe(x => {
-      this.weatherData = x.data;
+      this.dataSource = new MatTableDataSource<WeatherDataModel>(x.data);
+      this.dataSource.paginator = this.paginator;
     });
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.weatherDataSubscription.unsubscribe();
   }
 }
