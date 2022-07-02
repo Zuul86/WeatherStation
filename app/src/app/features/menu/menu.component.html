@@ -1,0 +1,19 @@
+<div class="settings-drawer">
+    <h4>Weather Station #47</h4>
+    <mat-divider></mat-divider>
+    <div class="setting-controls">
+        <div>
+            <mat-button-toggle-group #group="matButtonToggleGroup" value="F">
+                <mat-button-toggle value="F" aria-label="Farenheit" (change)="onTemperatureUnitChange($event.value)">
+                    &deg;F
+                </mat-button-toggle>
+                <mat-button-toggle value="C" aria-label="Celcius" (change)="onTemperatureUnitChange($event.value)">
+                    &deg;C
+                </mat-button-toggle>
+            </mat-button-toggle-group>
+        </div>
+        <div>
+            <app-login-button></app-login-button>
+        </div>
+    </div>
+</div>

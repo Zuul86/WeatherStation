@@ -1,0 +1,15 @@
+.settings-drawer {
+    h4 {
+        text-align: center;
+        margin-top: 16px;
+        font-family: "Courier New", Courier, monospace;
+    }
+    
+    .setting-controls {
+        display: flex;
+        flex-direction: column;
+        div{
+            margin: 16px;
+        }
+    }
+}

@@ -1,17 +1,6 @@
 <mat-drawer-container autosize>
   <mat-drawer #drawer mode="over">
-    <div class="settings-drawer">
-      <h4>Weather Station #47</h4>
-      <mat-divider></mat-divider>
-      <mat-button-toggle-group #group="matButtonToggleGroup" value="F" class="temperature-unit-control">
-        <mat-button-toggle value="F" aria-label="Farenheit">
-          &deg;F
-        </mat-button-toggle>
-        <mat-button-toggle value="C" aria-label="Celcius">
-          &deg;C
-        </mat-button-toggle>
-      </mat-button-toggle-group> 
-    </div>
+    <app-menu></app-menu>
   </mat-drawer>
   <div>
     <mat-toolbar>
@@ -20,6 +9,6 @@
       </button>
       <span>WeatherNerd</span>
     </mat-toolbar>
-    <app-sensor-data-table [temperatureUnit]="group.value"></app-sensor-data-table>
+    <router-outlet></router-outlet>
   </div>
 </mat-drawer-container>
