@@ -7,8 +7,7 @@
     "build": "ng build",
     "watch": "ng serve --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint",
-    "prebuild": "ng lint && ng test --code-coverage"
+    "lint": "ng lint"
   },
   "private": true,
   "dependencies": {
