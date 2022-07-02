@@ -2,7 +2,6 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { Store } from '@ngxs/store';
 import { UpdateTemperatureUnit } from 'src/app/actions/update-temperature-unit.action';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
 
 @Component({
   selector: 'app-menu',
@@ -15,11 +14,5 @@ export class MenuComponent {
 
   onTemperatureUnitChange(value: string) {
     this.store.dispatch(new UpdateTemperatureUnit(value));
-  }
-
-  openLoginDialog(): void {
-    const dialogRef = this.dialog.open(LoginDialogComponent, {
-      width: '250px'
-    });
   }
 }

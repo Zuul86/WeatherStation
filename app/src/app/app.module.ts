@@ -20,24 +20,31 @@ import { ApolloLink, InMemoryCache } from '@apollo/client/core';
 
 import { SensorDataComponent } from './features/weather-data-table/components/sensor-data/sensor-data.component';
 import { ConvertTemperaturePipe } from './features/weather-data-table/pipes/convert-temperature.pipe';
-import { LoginPageComponent } from './pages/login-page/login-page.component';
 import { WeatherDashboardPageComponent } from './pages/weather-dashboard-page/weather-dashboard-page.component';
 import { MenuComponent } from './features/menu/menu.component';
 import { environment } from 'src/environments/environment';
 import { AppSettingsState } from './state/app-settings.state';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
-import { LoginDialogComponent } from './features/login-dialog/login-dialog.component';
 import { MatDialogModule } from '@angular/material/dialog';
+
+import { OktaAuthModule, OKTA_CONFIG } from '@okta/okta-angular';
+import { OktaAuth } from '@okta/okta-auth-js';
+import { LoginButtonComponent } from './features/login-button/login-button.component';
+
+const oktaAuth = new OktaAuth({
+  issuer: 'https://dev-68348927.okta.com/oauth2/default',
+  clientId: '0oa5nhakmyDFhh9w15d7',
+  redirectUri: window.location.origin + '/login/callback'
+});
 
 @NgModule({
   declarations: [
     AppComponent,
     SensorDataComponent,
     ConvertTemperaturePipe,
-    LoginPageComponent,
     WeatherDashboardPageComponent,
     MenuComponent,
-    LoginDialogComponent
+    LoginButtonComponent
   ],
   imports: [
     BrowserModule,
@@ -54,7 +61,8 @@ import { MatDialogModule } from '@angular/material/dialog';
     ApolloModule,
     HttpClientModule,
     NgxsModule.forRoot([AppSettingsState], { developmentMode: !environment.production }),
-    NgxsReduxDevtoolsPluginModule.forRoot()
+    NgxsReduxDevtoolsPluginModule.forRoot(),
+    OktaAuthModule
   ],
   providers: [
     {
@@ -82,6 +90,10 @@ import { MatDialogModule } from '@angular/material/dialog';
         };
       },
       deps: [HttpLink],
+    },
+    {
+      provide: OKTA_CONFIG,
+      useValue: { oktaAuth }
     }
   ],
   bootstrap: [AppComponent]
