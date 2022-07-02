@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { OktaAuthStateService } from '@okta/okta-angular';
+import { EMPTY } from 'rxjs';
 
 import { ProfileComponent } from './profile.component';
 
@@ -8,9 +10,17 @@ describe('ProfileComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ProfileComponent ]
+      declarations: [ProfileComponent],
+      providers: [
+        {
+          provide: OktaAuthStateService,
+          useValue: {
+            authState$: EMPTY
+          }
+        }
+      ]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {
