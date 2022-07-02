@@ -26,6 +26,8 @@ import { MenuComponent } from './features/menu/menu.component';
 import { environment } from 'src/environments/environment';
 import { AppSettingsState } from './state/app-settings.state';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
+import { LoginDialogComponent } from './features/login-dialog/login-dialog.component';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
   declarations: [
@@ -34,7 +36,8 @@ import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
     ConvertTemperaturePipe,
     LoginPageComponent,
     WeatherDashboardPageComponent,
-    MenuComponent
+    MenuComponent,
+    LoginDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -46,6 +49,7 @@ import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
     MatButtonModule,
     MatSidenavModule,
     MatDividerModule,
+    MatDialogModule,
     MatButtonToggleModule,
     ApolloModule,
     HttpClientModule,
