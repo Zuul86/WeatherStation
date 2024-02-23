@@ -80,7 +80,7 @@ const oktaAuth = new OktaAuth({
           operation.setContext({
             headers: new HttpHeaders().set(
               'x-api-key',
-              'da2-vgod6roy2nd4xplovxzo3bjmyu',
+              'da2-2t2qmdxejjcsxlq7gwjnxtuxk4',
             ),
           });
           return forward(operation);
