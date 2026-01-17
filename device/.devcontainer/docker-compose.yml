@@ -1,0 +1,9 @@
+version: '3'
+services:
+  platformio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspaces/WeatherStation:cached
+    command: /bin/sh -c "while sleep 1000; do :; done"
