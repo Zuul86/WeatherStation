@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <WiFiClientSecure.h>
-#include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include <NTPClient.h>
@@ -14,13 +13,6 @@
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org");
-
-WiFiClientSecure net = WiFiClientSecure();
-PubSubClient client(net);
-
-PrivateKey pk(AWS_CERT_PRIVATE);
-X509List mycert(AWS_CERT_CRT);
-X509List x509(AWS_CERT_CA);
 
 DHT dht(DHT_PIN, DHT22);
 SFE_BMP180 pressure;
@@ -38,21 +30,6 @@ void connectWiFi()
   }
 
   Serial.println(WiFi.localIP());
-}
-
-void configurePubSubClient()
-{
-  timeClient.begin();
-  while(!timeClient.update())
-  {
-    timeClient.forceUpdate();
-  }
-
-  net.setX509Time(timeClient.getEpochTime());
-  net.setClientRSACert(&mycert, &pk);
-  net.setTrustAnchors(&x509);
-
-  client.setServer(AWS_IOT_ENDPOINT, AWS_PORT);
 }
 
 double getPressure(double temperature)
@@ -90,28 +67,6 @@ void publishWeatherData()
 
   char jsonBuffer[512];
   serializeJson(doc, jsonBuffer);
-
-  client.publish(AWS_IOT_PUBLISH_TOPIC, jsonBuffer);
-}
-
-void reconnect() {
-  // Loop until we're reconnected
-  while (!client.connected()) {
-    Serial.print("Attempting MQTT connection...");
-    // Attempt to connect
-    if (client.connect(THINGNAME)) {
-      Serial.println("AWS IoT Connected!");
-    } else {
-      Serial.print("failed, try again in 5 seconds");
-
-      char buf[256];
-      net.getLastSSLError(buf,256);
-      Serial.println("WiFiClientSecure SSL error: ");
-      Serial.println(buf);
-
-      delay(5000);
-    }
-  }
 }
 
 WiFiManager wifiManager;
@@ -125,15 +80,10 @@ void setup() {
   WiFi.disconnect(true);
   delay(10000);
   wifiManager.autoConnect("ZOMBIE");
-  configurePubSubClient();
+
 }
 
 void loop() {
-  if (!client.connected()) {
-    reconnect();
-  }
-
-  client.loop();
   publishWeatherData();
   delay(DATA_COLLECTION_INTERVAL);
 }
