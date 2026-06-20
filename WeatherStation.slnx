@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="WeatherStation.ServiceDefaults/WeatherStation.ServiceDefaults.csproj" />
+  <Project Path="WeatherStation.AppHost/WeatherStation.AppHost.csproj" />
+  <Project Path="WeatherStation.TelemetryProcessor/WeatherStation.TelemetryProcessor.csproj" />
+  <Project Path="WeatherStation.Api/WeatherStation.Api.csproj" />
+</Solution>

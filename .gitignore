@@ -4,3 +4,14 @@
 **/.vscode/launch.json
 **/.vscode/ipch
 **/device/src/secrets.h
+
+# .NET
+[Bb]in/
+[Oo]bj/
+*.user
+.vs/
+
+# .NET Aspire
+.aspire/
+
+/dotnet/

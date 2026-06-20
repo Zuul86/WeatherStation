@@ -1,0 +1,32 @@
+{
+  "name": "WeatherStation Backend & App",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "version": "latest",
+      "enableNonRootDocker": true
+    },
+    "ghcr.io/devcontainers/features/node:2.0.0": {
+      "version": "18"
+    }
+  },
+  "postCreateCommand": "wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash && dotnet dev-certs https --trust && wget -q https://antigravity.google/cli/install.sh -O - | /bin/bash",
+  "containerEnv": {
+    "SSL_CERT_DIR": "/home/vscode/.aspnet/dev-certs/trust:/usr/lib/ssl/certs"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csdevkit",
+        "ms-azuretools.vscode-dapr",
+        "ms-azuretools.vscode-docker",
+        "angular.ng-template",
+        "google.geminicodeassist"
+      ]
+    }
+  },
+  "remoteUser": "vscode"
+}
