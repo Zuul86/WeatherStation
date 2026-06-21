@@ -23,8 +23,7 @@
         "ms-dotnettools.csdevkit",
         "ms-azuretools.vscode-dapr",
         "ms-azuretools.vscode-docker",
-        "angular.ng-template",
-        "google.geminicodeassist"
+        "angular.ng-template"
       ]
     }
   },
