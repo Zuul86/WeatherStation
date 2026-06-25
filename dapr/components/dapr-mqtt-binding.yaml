@@ -5,9 +5,10 @@ metadata:
 spec:
   type: bindings.mqtt
   version: v1
+  ignoreErrors: true
   metadata:
   - name: url
-    value: "tcp://localhost:1883"
+    value: "tcp://host.docker.internal:1883"
   - name: topic
     value: "weather/telemetry"
   - name: consumerID

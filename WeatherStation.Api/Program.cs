@@ -5,8 +5,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add service defaults and OpenTelemetry
 builder.AddServiceDefaults();
 
-// Add Azure Table Client (configured via Aspire connection string "weather-data")
-builder.AddAzureTableClient("weather-data");
+// Add Dapr Client
+builder.Services.AddDaprClient();
 
 // Configure GraphQL Server using HotChocolate
 builder.Services

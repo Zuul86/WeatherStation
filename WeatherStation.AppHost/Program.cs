@@ -2,27 +2,34 @@ using Aspire.Hosting.Dapr;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-// Configure Azure Storage tables
-var storage = builder.AddAzureStorage("storage").RunAsEmulator();
-var tables = storage.AddTables("weather-data");
+// Configure local PostgreSQL database for Dapr State Store
+var postgres = builder.AddPostgres("postgres")
+    .WithImage("postgres")
+    .WithPgAdmin();
+var weatherDb = postgres.AddDatabase("weatherdb");
 
 // Configure MQTT Mosquitto broker
 var mqttBroker = builder.AddDockerfile("mqtt-broker", ".")
-    .WithEndpoint(port: 1883, targetPort: 1883, name: "mqtt");
+    .WithEndpoint(port: 1883, targetPort: 1883, name: "mqtt")
+    .WithAnnotation(new Aspire.Hosting.ApplicationModel.ProxySupportAnnotation { ProxyEnabled = false });
 
 // Add Dapr sidecar to TelemetryProcessor
 var telemetryProcessor = builder.AddProject<Projects.WeatherStation_TelemetryProcessor>("telemetryprocessor")
-    .WithReference(tables)
     .WithDaprSidecar(new DaprSidecarOptions
     {
-        AppId = "telemetryprocessor",
-        ResourcesPaths = ["../dapr/components"]
+        AppId = "Telemetry",
+        ResourcesPaths = ["../dapr/components"],
+        AppPort = 8080
     });
 
-// Configure API
+// Configure API with Dapr sidecar
 var api = builder.AddProject<Projects.WeatherStation_Api>("api")
-    .WithReference(tables)
-    .WithHttpEndpoint(port: 5081, name: "http");
+    .WithHttpEndpoint(port: 5081, name: "http")
+    .WithDaprSidecar(new DaprSidecarOptions
+    {
+        AppId = "Api",
+        ResourcesPaths = ["../dapr/components"]
+    });
 
 // Configure Angular Frontend App
 builder.AddNpmApp("app", "../WeatherStation.Web")

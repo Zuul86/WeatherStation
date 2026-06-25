@@ -13,7 +13,7 @@
       "version": "18"
     }
   },
-  "postCreateCommand": "wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash && dotnet dev-certs https --trust && wget -q https://antigravity.google/cli/install.sh -O - | /bin/bash",
+  "postCreateCommand": "wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash && dotnet dev-certs https --trust && wget -q https://antigravity.google/cli/install.sh -O - | /bin/bash && dapr init --slim",
   "containerEnv": {
     "SSL_CERT_DIR": "/home/vscode/.aspnet/dev-certs/trust:/usr/lib/ssl/certs"
   },

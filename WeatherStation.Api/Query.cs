@@ -1,4 +1,4 @@
-using Azure.Data.Tables;
+using Dapr.Client;
 using HotChocolate;
 
 namespace WeatherStation.Api;
@@ -7,29 +7,39 @@ public class Query
 {
     [GraphQLName("listWeatherData")]
     public async Task<WeatherDataResult> GetListWeatherData(
-        [Service] TableServiceClient tableServiceClient,
+        [Service] DaprClient daprClient,
         int limit = 1000)
     {
-        var tableClient = tableServiceClient.GetTableClient("weatherdata");
-        await tableClient.CreateIfNotExistsAsync();
-
         var items = new List<WeatherDataItem>();
 
-        // Query entities from the Telemetry partition
-        var queryResults = tableClient.QueryAsync<TableEntity>(filter: "PartitionKey eq 'Telemetry'");
-
-        int count = 0;
-        await foreach (var entity in queryResults)
+        try
         {
-            if (count >= limit) break;
+            // Query telemetry from Dapr state store
+            var queryJson = $$"""
+            {
+                "page": {
+                    "limit": {{limit}}
+                }
+            }
+            """;
 
-            double temp = entity.GetDouble("Temperature") ?? 0.0;
-            double humid = entity.GetDouble("Humidity") ?? 0.0;
-            double bp = entity.GetDouble("BarometricPressure") ?? 0.0;
-            long time = entity.GetInt64("EpochTime") ?? 0;
+            var response = await daprClient.QueryStateAsync<TelemetryPayloadDto>("statestore", queryJson);
 
-            items.Add(new WeatherDataItem(bp, humid, temp, time));
-            count++;
+            if (response?.Results != null)
+            {
+                foreach (var result in response.Results)
+                {
+                    var payload = result.Data;
+                    if (payload != null)
+                    {
+                        items.Add(new WeatherDataItem(payload.SensorBp, payload.SensorH, payload.SensorT, payload.Time));
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error querying Dapr state store: {ex}");
         }
 
         // Return newest readings first
@@ -45,4 +55,12 @@ public record WeatherDataItem(
     [property: GraphQLName("sensor_h")] double SensorH,
     [property: GraphQLName("sensor_t")] double SensorT,
     [property: GraphQLName("time")] long Time
+);
+
+// DTO representing the state stored in Dapr
+public record TelemetryPayloadDto(
+    [property: System.Text.Json.Serialization.JsonPropertyName("sensor_bp")] double SensorBp,
+    [property: System.Text.Json.Serialization.JsonPropertyName("sensor_h")] double SensorH,
+    [property: System.Text.Json.Serialization.JsonPropertyName("sensor_t")] double SensorT,
+    [property: System.Text.Json.Serialization.JsonPropertyName("time")] long Time
 );

@@ -1,52 +1,40 @@
-using Azure.Data.Tables;
 using Microsoft.AspNetCore.Mvc;
+using Dapr.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults and OpenTelemetry
 builder.AddServiceDefaults();
 
-// Add Azure Table Client (configured via Aspire connection string "weather-data")
-builder.AddAzureTableClient("weather-data");
+// Add Dapr Client
+builder.Services.AddDaprClient();
 
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
 
 // Define Dapr input binding handler
-app.MapPost("/mqtt-telemetry", async ([FromBody] TelemetryPayload payload, [FromServices] TableServiceClient tableServiceClient, ILogger<Program> logger) =>
+app.MapPost("/mqtt-telemetry", async ([FromBody] TelemetryPayload payload, [FromServices] DaprClient daprClient, ILogger<Program> logger) =>
 {
     logger.LogInformation("Received telemetry reading: Temp={Temp}, Humid={Humid}, Pressure={Pressure}", 
         payload.SensorT, payload.SensorH, payload.SensorBp);
 
     try
     {
-        var tableClient = tableServiceClient.GetTableClient("weatherdata");
-        await tableClient.CreateIfNotExistsAsync();
-
-        // Design: PartitionKey = "Telemetry" (as it's a single device station)
-        // RowKey = Date formatted as ISO 8601 UTC string (e.g. YYYY-MM-DDTHH:mm:ssZ)
+        // Design: Save to Dapr state store
+        // PartitionKey is derived from AppID ("Telemetry")
+        // RowKey is Date formatted as ISO 8601 UTC string (e.g. YYYY-MM-DDTHH:mm:ssZ)
         var readingTime = DateTimeOffset.FromUnixTimeSeconds(payload.Time).UtcDateTime;
         var rowKey = readingTime.ToString("o"); // Round-trip date/time pattern (ISO 8601)
 
-        var entity = new TableEntity("Telemetry", rowKey)
-        {
-            { "Temperature", payload.SensorT },
-            { "Humidity", payload.SensorH },
-            { "BarometricPressure", payload.SensorBp },
-            { "Latitude", payload.Lat },
-            { "Longitude", payload.Long },
-            { "EpochTime", payload.Time }
-        };
-
-        await tableClient.UpsertEntityAsync(entity);
-        logger.LogInformation("Successfully stored telemetry with RowKey: {RowKey}", rowKey);
+        await daprClient.SaveStateAsync("statestore", rowKey, payload);
+        logger.LogInformation("Successfully stored telemetry in Dapr state store with key: {Key}", rowKey);
         
         return Results.Ok();
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "Failed to store telemetry reading in Azure Table Storage.");
+        logger.LogError(ex, "Failed to store telemetry reading in Dapr state store.");
         return Results.Problem("Failed to store telemetry reading.");
     }
 });
