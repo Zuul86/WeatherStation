@@ -1,4 +1,4 @@
-using Aspire.Hosting.Dapr;
+using CommunityToolkit.Aspire.Hosting.Dapr;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
