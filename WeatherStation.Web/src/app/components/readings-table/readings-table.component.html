@@ -1,0 +1,33 @@
+<section class="rounded-[28px] border border-white/15 bg-slate-900/75 p-4 shadow-[0_20px_60px_rgba(2,8,23,0.3)] backdrop-blur-xl sm:p-6">
+  <div class="mb-4 flex items-center justify-between">
+    <div>
+      <h2 class="text-lg font-semibold text-white">Recent readings</h2>
+      <p class="mt-1 text-sm font-medium text-slate-300">Latest weather samples from the network</p>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full border-collapse text-sm text-slate-300">
+      <thead>
+        <tr class="border-b border-white/15 text-left text-xs uppercase tracking-[0.24em] text-slate-300">
+          <th class="sortable cursor-pointer px-3 py-3" (click)="toggleSort('timestamp')">Timestamp</th>
+          <th class="sortable cursor-pointer px-3 py-3" (click)="toggleSort('temperatureFahrenheit')">Temp</th>
+          <th class="sortable cursor-pointer px-3 py-3" (click)="toggleSort('humidity')">Humidity</th>
+          <th class="sortable cursor-pointer px-3 py-3" (click)="toggleSort('pressure')">Pressure</th>
+          <th class="px-3 py-3">Device</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (reading of visibleReadings(); track reading.id) {
+          <tr class="border-b border-white/5 text-slate-300 transition hover:bg-white/5">
+            <td class="px-3 py-3 font-medium text-slate-200">{{ formatTimestamp(reading.timestamp) }}</td>
+            <td class="px-3 py-3 font-medium text-slate-200">{{ reading.temperatureFahrenheit | number:'1.1-1' }} °F</td>
+            <td class="px-3 py-3 font-medium text-slate-200">{{ reading.humidity | number:'1.0-0' }}%</td>
+            <td class="px-3 py-3 font-medium text-slate-200">{{ reading.pressure | number:'1.0-0' }} hPa</td>
+            <td class="px-3 py-3 font-medium text-slate-200">{{ reading.deviceId ?? 'Unknown' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
