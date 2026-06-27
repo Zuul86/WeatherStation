@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { interval } from 'rxjs';
 import { WeatherReading } from '../../models/weather-reading.model';
 import { WeatherService } from '../../services/weather.service';
 import { ReadingCardComponent } from '../reading-card/reading-card.component';
@@ -13,26 +14,19 @@ import { ReadingsTableComponent } from '../readings-table/readings-table.compone
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
-export class DashboardComponent implements OnInit, OnDestroy {
-  readings: WeatherReading[] = [];
-  latestReading: WeatherReading | null = null;
-  selectedDevice: string | null = null;
-  devices: string[] = [];
-  isRefreshing = false;
-  private destroy$ = new Subject<void>();
-  private refreshTimer: ReturnType<typeof setInterval> | null = null;
+export class DashboardComponent {
+  private readonly weatherService = inject(WeatherService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  constructor(private readonly weatherService: WeatherService) {}
+  readonly readings = signal<WeatherReading[]>([]);
+  readonly latestReading = computed(() => this.readings()[0] ?? null);
+  readonly selectedDevice = signal<string | null>(null);
+  readonly devices = signal<string[]>([]);
+  readonly isRefreshing = signal(false);
 
-  ngOnInit(): void {
+  constructor() {
     this.loadReadings();
     this.startAutoRefresh();
-  }
-
-  ngOnDestroy(): void {
-    this.stopAutoRefresh();
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   refresh(): void {
@@ -40,35 +34,38 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   onDeviceChange(device: string | null): void {
-    this.selectedDevice = device;
+    this.selectedDevice.set(device);
   }
 
   private loadReadings(): void {
-    this.isRefreshing = true;
+    this.isRefreshing.set(true);
+
     this.weatherService
       .getLatestReadings(12)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (readings) => {
-          this.readings = readings;
-          this.latestReading = readings[0] ?? null;
-          this.devices = Array.from(new Set(readings.map((reading) => reading.deviceId).filter((device): device is string => !!device)));
-          this.isRefreshing = false;
+          this.readings.set(readings);
+          this.devices.set(
+            Array.from(
+              new Set(
+                readings
+                  .map((reading) => reading.deviceId)
+                  .filter((device): device is string => !!device),
+              ),
+            ),
+          );
+          this.isRefreshing.set(false);
         },
         error: () => {
-          this.isRefreshing = false;
+          this.isRefreshing.set(false);
         },
       });
   }
 
   private startAutoRefresh(): void {
-    this.refreshTimer = setInterval(() => this.loadReadings(), 15000);
-  }
-
-  private stopAutoRefresh(): void {
-    if (this.refreshTimer) {
-      clearInterval(this.refreshTimer);
-      this.refreshTimer = null;
-    }
+    interval(15000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadReadings());
   }
 }

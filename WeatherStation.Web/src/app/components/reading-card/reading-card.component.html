@@ -1,10 +1,12 @@
-<article class="metric-card" [class]="accentClass">
-  <div class="metric-card__icon" aria-hidden="true">{{ icon }}</div>
-  <div class="metric-card__content">
-    <p class="metric-card__label">{{ label }}</p>
-    <div class="metric-card__value-row">
-      <span class="metric-card__value">{{ displayValue }}</span>
-      <span class="metric-card__unit">{{ unit }}</span>
+<article class="group rounded-[24px] border border-white/15 bg-slate-950/70 p-4 shadow-[0_18px_40px_rgba(2,8,23,0.25)] backdrop-blur-xl transition duration-200 hover:-translate-y-1 hover:border-sky-400/35 hover:bg-slate-900/80" [class]="accentClass">
+  <div class="flex items-center gap-3">
+    <div class="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-xl shadow-inner" aria-hidden="true">{{ icon }}</div>
+    <div class="min-w-0 flex-1">
+      <p class="text-[0.72rem] font-semibold uppercase tracking-[0.24em] text-slate-300">{{ label }}</p>
+      <div class="mt-1 flex items-baseline gap-1">
+        <span class="text-xl font-semibold text-white">{{ displayValue }}</span>
+        <span class="text-sm font-medium text-slate-300">{{ unit }}</span>
+      </div>
     </div>
   </div>
 </article>

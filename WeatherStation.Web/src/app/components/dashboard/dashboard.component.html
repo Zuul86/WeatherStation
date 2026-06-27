@@ -1,59 +1,77 @@
-<main class="dashboard-shell">
-  <section class="hero-card">
-    <div class="hero-card__content">
-      <div>
-        <p class="eyebrow">Live weather station</p>
-        <h1>Current conditions</h1>
-        <p class="hero-card__subtitle">A live snapshot of the latest weather reading from your devices.</p>
+<main class="mx-auto flex min-h-screen max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+  <section class="glass-panel weather-glow overflow-hidden px-6 py-7 sm:px-8 lg:px-10">
+    <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <div class="max-w-2xl space-y-3">
+        <p class="text-sm font-semibold uppercase tracking-[0.32em] text-sky-200">Live weather station</p>
+        <h1 class="text-3xl font-semibold tracking-tight text-white sm:text-4xl">Current conditions</h1>
+        <p class="text-sm leading-6 font-medium text-slate-200 sm:text-base">
+          A live snapshot of the latest weather reading from your connected devices, styled with a calm dark-glass interface.
+        </p>
       </div>
-      <button class="refresh-button" type="button" (click)="refresh()" [disabled]="isRefreshing">
-        {{ isRefreshing ? 'Refreshing…' : 'Refresh now' }}
+
+      <button
+        class="inline-flex items-center justify-center rounded-full border border-sky-400/40 bg-sky-500/15 px-4 py-2 text-sm font-semibold text-sky-100 transition duration-200 hover:bg-sky-500/25 disabled:cursor-not-allowed disabled:opacity-60"
+        type="button"
+        (click)="refresh()"
+        [disabled]="isRefreshing()"
+      >
+        {{ isRefreshing() ? 'Refreshing…' : 'Refresh now' }}
       </button>
     </div>
 
-    @if (latestReading) {
-      <div class="hero-card__metrics">
+    @if (latestReading()) {
+      <div class="mt-8 grid gap-4 md:grid-cols-3">
         <app-reading-card
           label="Temperature"
-          [value]="latestReading.temperatureFahrenheit"
+          [value]="latestReading()?.temperatureFahrenheit"
           unit="°F"
           icon="🌡️"
           kind="temperature"
         ></app-reading-card>
         <app-reading-card
           label="Humidity"
-          [value]="latestReading.humidity"
+          [value]="latestReading()?.humidity"
           unit="%"
           icon="💧"
           kind="humidity"
         ></app-reading-card>
         <app-reading-card
           label="Pressure"
-          [value]="latestReading.pressure"
+          [value]="latestReading()?.pressure"
           unit="hPa"
           icon="🧭"
           kind="pressure"
         ></app-reading-card>
       </div>
+    } @else {
+      <div class="mt-8 rounded-2xl border border-dashed border-white/15 bg-slate-950/70 p-6 text-sm font-medium text-slate-300">
+        Waiting for the first reading to arrive.
+      </div>
     }
   </section>
 
-  <section class="toolbar">
-    <label class="device-filter">
-      <span>Device</span>
-      <select [value]="selectedDevice ?? ''" (change)="onDeviceChange($any($event.target).value || null)">
+  <section class="glass-panel flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+    <label class="flex flex-col gap-2 text-sm text-slate-300">
+      <span class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Device</span>
+      <select
+        class="rounded-full border border-white/15 bg-slate-950/80 px-3 py-2 text-sm font-medium text-slate-100 outline-none ring-0 transition focus:border-sky-400/50"
+        [value]="selectedDevice() ?? ''"
+        (change)="onDeviceChange($any($event.target).value || null)"
+      >
         <option [value]="''">All devices</option>
-        @for (device of devices; track device) {
+        @for (device of devices(); track device) {
           <option [value]="device">{{ device }}</option>
         }
       </select>
     </label>
 
-    <div class="toolbar__status">
-      <span class="status-pill">Auto-refresh every 15s</span>
-      <span class="status-pill">{{ latestReading?.timestamp ? (latestReading!.timestamp | date:'medium') : 'Waiting for data' }}</span>
+    <div class="flex flex-wrap items-center gap-3 text-sm text-slate-300">
+      <span class="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 font-medium text-slate-100">Auto-refresh every 15s</span>
+      <span class="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 font-medium text-slate-100">
+        {{ latestReading()?.timestamp ? (latestReading()!.timestamp | date:'medium') : 'Waiting for data' }}
+      </span>
     </div>
   </section>
 
-  <app-readings-table [readings]="readings" [selectedDevice]="selectedDevice"></app-readings-table>
+  <app-readings-table [readings]="readings()" [selectedDevice]="selectedDevice()"></app-readings-table>
 </main>

@@ -2,68 +2,6 @@
   display: block;
 }
 
-.table-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 1.25rem;
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
-  padding: 1rem 1.1rem 1.25rem;
-}
-
-.table-card__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.9rem;
-}
-
-.table-card__header h2 {
-  margin: 0;
-  font-size: 1.1rem;
-  color: #0f172a;
-}
-
-.table-card__header p {
-  margin: 0.2rem 0 0;
-  font-size: 0.9rem;
-  color: #64748b;
-}
-
-.table-wrapper {
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  padding: 0.8rem 0.6rem;
-  text-align: left;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-th {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #64748b;
-}
-
 .sortable {
-  cursor: pointer;
   user-select: none;
-}
-
-tr:hover td {
-  background: rgba(248, 250, 252, 0.8);
-}
-
-@media (max-width: 720px) {
-  th,
-  td {
-    padding: 0.65rem 0.4rem;
-    font-size: 0.9rem;
-  }
 }
