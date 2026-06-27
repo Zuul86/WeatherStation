@@ -15,3 +15,5 @@
 .aspire/
 
 /dotnet/
+**/dist/
+**/node_modules/
