@@ -3,7 +3,8 @@ using CommunityToolkit.Aspire.Hosting.Dapr;
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Configure local PostgreSQL database for Dapr State Store
-var postgres = builder.AddPostgres("postgres")
+var password = builder.AddParameter("postgres-password", "postgres", secret: true);
+var postgres = builder.AddPostgres("postgres", password: password, port: 5432)
     .WithImage("postgres")
     .WithPgAdmin();
 var weatherDb = postgres.AddDatabase("weatherdb");
