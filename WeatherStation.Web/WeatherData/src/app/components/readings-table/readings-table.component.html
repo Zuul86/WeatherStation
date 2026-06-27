@@ -1,0 +1,33 @@
+<section class="table-card">
+  <div class="table-card__header">
+    <div>
+      <h2>Recent readings</h2>
+      <p>Latest weather samples from the network</p>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th (click)="toggleSort('timestamp')" class="sortable">Timestamp</th>
+          <th (click)="toggleSort('temperatureFahrenheit')" class="sortable">Temp</th>
+          <th (click)="toggleSort('humidity')" class="sortable">Humidity</th>
+          <th (click)="toggleSort('pressure')" class="sortable">Pressure</th>
+          <th>Device</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (reading of visibleReadings; track reading.id) {
+          <tr>
+            <td>{{ formatTimestamp(reading.timestamp) }}</td>
+            <td>{{ reading.temperatureFahrenheit | number:'1.1-1' }} °F</td>
+            <td>{{ reading.humidity | number:'1.0-0' }}%</td>
+            <td>{{ reading.pressure | number:'1.0-0' }} hPa</td>
+            <td>{{ reading.deviceId ?? 'Unknown' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

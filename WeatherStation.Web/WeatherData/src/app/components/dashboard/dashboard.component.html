@@ -1,0 +1,59 @@
+<main class="dashboard-shell">
+  <section class="hero-card">
+    <div class="hero-card__content">
+      <div>
+        <p class="eyebrow">Live weather station</p>
+        <h1>Current conditions</h1>
+        <p class="hero-card__subtitle">A live snapshot of the latest weather reading from your devices.</p>
+      </div>
+      <button class="refresh-button" type="button" (click)="refresh()" [disabled]="isRefreshing">
+        {{ isRefreshing ? 'Refreshing…' : 'Refresh now' }}
+      </button>
+    </div>
+
+    @if (latestReading) {
+      <div class="hero-card__metrics">
+        <app-reading-card
+          label="Temperature"
+          [value]="latestReading.temperatureFahrenheit"
+          unit="°F"
+          icon="🌡️"
+          kind="temperature"
+        ></app-reading-card>
+        <app-reading-card
+          label="Humidity"
+          [value]="latestReading.humidity"
+          unit="%"
+          icon="💧"
+          kind="humidity"
+        ></app-reading-card>
+        <app-reading-card
+          label="Pressure"
+          [value]="latestReading.pressure"
+          unit="hPa"
+          icon="🧭"
+          kind="pressure"
+        ></app-reading-card>
+      </div>
+    }
+  </section>
+
+  <section class="toolbar">
+    <label class="device-filter">
+      <span>Device</span>
+      <select [value]="selectedDevice ?? ''" (change)="onDeviceChange($any($event.target).value || null)">
+        <option [value]="''">All devices</option>
+        @for (device of devices; track device) {
+          <option [value]="device">{{ device }}</option>
+        }
+      </select>
+    </label>
+
+    <div class="toolbar__status">
+      <span class="status-pill">Auto-refresh every 15s</span>
+      <span class="status-pill">{{ latestReading?.timestamp ? (latestReading!.timestamp | date:'medium') : 'Waiting for data' }}</span>
+    </div>
+  </section>
+
+  <app-readings-table [readings]="readings" [selectedDevice]="selectedDevice"></app-readings-table>
+</main>

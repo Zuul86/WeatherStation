@@ -1,0 +1,74 @@
+:host {
+  display: block;
+}
+
+.metric-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.12);
+}
+
+.metric-card__icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  font-size: 1.35rem;
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.metric-card--humidity .metric-card__icon {
+  background: rgba(14, 165, 233, 0.15);
+}
+
+.metric-card--pressure .metric-card__icon {
+  background: rgba(99, 102, 241, 0.14);
+}
+
+.metric-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.metric-card__label {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.metric-card__value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.metric-card__value {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #0f172a;
+  transition: transform 180ms ease;
+}
+
+.metric-card__unit {
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.metric-card:hover .metric-card__value {
+  transform: scale(1.03);
+}
