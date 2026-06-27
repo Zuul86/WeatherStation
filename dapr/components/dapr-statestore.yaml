@@ -8,4 +8,5 @@ spec:
   ignoreErrors: true
   metadata:
   - name: connectionString
-    value: "Host=localhost;Port=5432;Database=weatherdb;Username=postgres;Password=postgres;SSL Mode=Disable;"
+    value: "host=localhost port=5432 dbname=weatherdb user=postgres password=postgres sslmode=disable"
+

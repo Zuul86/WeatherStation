@@ -27,7 +27,8 @@ app.MapPost("/mqtt-telemetry", async ([FromBody] TelemetryPayload payload, [From
         var readingTime = DateTimeOffset.FromUnixTimeSeconds(payload.Time).UtcDateTime;
         var rowKey = readingTime.ToString("o"); // Round-trip date/time pattern (ISO 8601)
 
-        await daprClient.SaveStateAsync("statestore", rowKey, payload);
+        var metadata = new Dictionary<string, string> { { "contentType", "application/json" } };
+        await daprClient.SaveStateAsync("statestore", rowKey, payload, metadata: metadata);
         logger.LogInformation("Successfully stored telemetry in Dapr state store with key: {Key}", rowKey);
         
         return Results.Ok();

@@ -8,8 +8,11 @@ spec:
   ignoreErrors: true
   metadata:
   - name: url
-    value: "tcp://host.docker.internal:1883"
+    value: "tcp://localhost:1883"
   - name: topic
     value: "weather/telemetry"
   - name: consumerID
     value: "telemetry-processor-consumer"
+scopes:
+  - Telemetry
+

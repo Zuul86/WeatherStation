@@ -16,6 +16,7 @@ var mqttBroker = builder.AddDockerfile("mqtt-broker", ".")
 
 // Add Dapr sidecar to TelemetryProcessor
 var telemetryProcessor = builder.AddProject<Projects.WeatherStation_TelemetryProcessor>("telemetryprocessor")
+    .WithHttpEndpoint(port: 8080, name: "http")
     .WithDaprSidecar(new DaprSidecarOptions
     {
         AppId = "Telemetry",
