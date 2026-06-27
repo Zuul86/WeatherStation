@@ -4,15 +4,16 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval } from 'rxjs';
 import { WeatherReading } from '../../models/weather-reading.model';
 import { WeatherService } from '../../services/weather.service';
+import { DashboardControlsComponent } from './dashboard-controls.component';
 import { ReadingCardComponent } from '../reading-card/reading-card.component';
 import { ReadingsTableComponent } from '../readings-table/readings-table.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, ReadingCardComponent, ReadingsTableComponent],
+  imports: [CommonModule, DashboardControlsComponent, ReadingCardComponent, ReadingsTableComponent],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css',
+  styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent {
   private readonly weatherService = inject(WeatherService);
@@ -21,7 +22,15 @@ export class DashboardComponent {
   readonly readings = signal<WeatherReading[]>([]);
   readonly latestReading = computed(() => this.readings()[0] ?? null);
   readonly selectedDevice = signal<string | null>(null);
-  readonly devices = signal<string[]>([]);
+  readonly devices = computed(() =>
+    Array.from(
+      new Set(
+        this.readings()
+          .map((reading) => reading.deviceId)
+          .filter((device): device is string => !!device),
+      ),
+    ),
+  );
   readonly isRefreshing = signal(false);
 
   constructor() {
@@ -46,15 +55,6 @@ export class DashboardComponent {
       .subscribe({
         next: (readings) => {
           this.readings.set(readings);
-          this.devices.set(
-            Array.from(
-              new Set(
-                readings
-                  .map((reading) => reading.deviceId)
-                  .filter((device): device is string => !!device),
-              ),
-            ),
-          );
           this.isRefreshing.set(false);
         },
         error: () => {

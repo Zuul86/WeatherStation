@@ -4,14 +4,38 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { WeatherReading } from '../models/weather-reading.model';
 
+interface WeatherReadingRaw {
+  id?: number | string;
+  timestamp?: string | Date;
+  temperatureFahrenheit?: number | string;
+  temperature?: number | string;
+  humidity?: number | string;
+  pressure?: number | string;
+  deviceId?: string | null;
+}
+
+interface GetWeatherReadingsResult {
+  weatherReadings: WeatherReadingRaw[];
+}
+
+interface GetLatestReadingsResult {
+  latestReadings: WeatherReadingRaw[];
+}
+
+interface GetWeatherReadingResult {
+  weatherReading: WeatherReadingRaw | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class WeatherService {
   constructor(private apollo: Apollo) {}
 
-  private normalize(obj: any): WeatherReading | null {
+  private normalize(obj: WeatherReadingRaw | null): WeatherReading | null {
     if (!obj) return null;
+
     const id = typeof obj.id === 'number' ? obj.id : Number(obj.id);
     if (Number.isNaN(id)) return null;
+
     return {
       id,
       timestamp: String(obj.timestamp),
@@ -19,7 +43,7 @@ export class WeatherService {
       humidity: Number(obj.humidity ?? 0),
       pressure: Number(obj.pressure ?? 0),
       deviceId: obj.deviceId ?? null,
-    } as WeatherReading;
+    };
   }
 
   private GET_WEATHER_READINGS = gql`
@@ -65,35 +89,47 @@ export class WeatherService {
    * Query all weather readings. Accepts optional filter and sort objects
    * which will be passed as GraphQL variables.
    */
-  getWeatherReadings(filter?: any, sort?: any): Observable<WeatherReading[]> {
+  getWeatherReadings(filter?: Record<string, unknown>, sort?: Record<string, unknown>): Observable<WeatherReading[]> {
     return this.apollo
-      .watchQuery<{ weatherReadings: WeatherReading[] }>({
+      .watchQuery<GetWeatherReadingsResult>({
         query: this.GET_WEATHER_READINGS,
         variables: { filter: filter ?? null, sort: sort ?? null },
         fetchPolicy: 'network-only',
       })
-          .valueChanges.pipe(map((r) => (r.data?.weatherReadings ?? []).map((x: any) => this.normalize(x)).filter((x): x is WeatherReading => x !== null)));
+      .valueChanges.pipe(
+        map((r) =>
+          (r.data?.weatherReadings ?? [])
+            .map((item) => this.normalize(item as WeatherReadingRaw))
+            .filter((reading): reading is WeatherReading => reading !== null),
+        ),
+      );
   }
 
   /** Query the latest `count` readings (most recent first) */
   getLatestReadings(count: number): Observable<WeatherReading[]> {
     return this.apollo
-      .watchQuery<{ latestReadings: WeatherReading[] }>({
+      .watchQuery<GetLatestReadingsResult>({
         query: this.GET_LATEST_READINGS,
         variables: { count },
         fetchPolicy: 'network-only',
       })
-          .valueChanges.pipe(map((r) => (r.data?.latestReadings ?? []).map((x: any) => this.normalize(x)).filter((x): x is WeatherReading => x !== null)));
+      .valueChanges.pipe(
+        map((r) =>
+          (r.data?.latestReadings ?? [])
+            .map((item) => this.normalize(item as WeatherReadingRaw))
+            .filter((reading): reading is WeatherReading => reading !== null),
+        ),
+      );
   }
 
   /** Query a single reading by its ID */
   getWeatherReading(id: number): Observable<WeatherReading | null> {
     return this.apollo
-      .watchQuery<{ weatherReading: WeatherReading | null }>({
+      .watchQuery<GetWeatherReadingResult>({
         query: this.GET_WEATHER_READING,
         variables: { id },
         fetchPolicy: 'network-only',
       })
-      .valueChanges.pipe(map((r) => this.normalize(r.data?.weatherReading ?? null)));
+      .valueChanges.pipe(map((r) => this.normalize(r.data?.weatherReading as WeatherReadingRaw | null ?? null)));
   }
 }

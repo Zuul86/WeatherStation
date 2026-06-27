@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, computed, signal } from '@angular/core';
 import { WeatherReading } from '../../models/weather-reading.model';
 
 @Component({
@@ -8,41 +8,48 @@ import { WeatherReading } from '../../models/weather-reading.model';
   imports: [CommonModule],
   providers: [DatePipe],
   templateUrl: './readings-table.component.html',
-  styleUrl: './readings-table.component.css',
+  styleUrls: ['./readings-table.component.css'],
 })
 export class ReadingsTableComponent {
-  @Input() readings: WeatherReading[] = [];
-  @Input() selectedDevice: string | null = null;
+  private readonly readingsSignal = signal<WeatherReading[]>([]);
+  private readonly selectedDeviceSignal = signal<string | null>(null);
+  readonly sortColumn = signal<keyof WeatherReading>('timestamp');
+  readonly sortDirection = signal<'asc' | 'desc'>('desc');
 
-  sortColumn: keyof WeatherReading | 'timestamp' = 'timestamp';
-  sortDirection: 'asc' | 'desc' = 'desc';
+  @Input() set readings(value: WeatherReading[]) {
+    this.readingsSignal.set(value ?? []);
+  }
 
-  constructor(private readonly datePipe: DatePipe) {}
+  @Input() set selectedDevice(value: string | null) {
+    this.selectedDeviceSignal.set(value);
+  }
 
-  get visibleReadings(): WeatherReading[] {
-    const filtered = this.selectedDevice
-      ? this.readings.filter((reading) => reading.deviceId === this.selectedDevice)
-      : this.readings;
+  readonly visibleReadings = computed(() => {
+    const filtered = this.selectedDeviceSignal()
+      ? this.readingsSignal().filter((reading) => reading.deviceId === this.selectedDeviceSignal())
+      : this.readingsSignal();
 
     return [...filtered].sort((left, right) => {
-      const leftValue = left[this.sortColumn as keyof WeatherReading];
-      const rightValue = right[this.sortColumn as keyof WeatherReading];
+      const leftValue = left[this.sortColumn()];
+      const rightValue = right[this.sortColumn()];
       const comparison = typeof leftValue === 'number' && typeof rightValue === 'number'
         ? leftValue - rightValue
         : String(leftValue).localeCompare(String(rightValue));
 
-      return this.sortDirection === 'asc' ? comparison : -comparison;
+      return this.sortDirection() === 'asc' ? comparison : -comparison;
     });
-  }
+  });
 
-  toggleSort(column: keyof WeatherReading | 'timestamp'): void {
-    if (this.sortColumn === column) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+  constructor(private readonly datePipe: DatePipe) {}
+
+  toggleSort(column: keyof WeatherReading): void {
+    if (this.sortColumn() === column) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
       return;
     }
 
-    this.sortColumn = column;
-    this.sortDirection = 'desc';
+    this.sortColumn.set(column);
+    this.sortDirection.set('desc');
   }
 
   formatTimestamp(value: string): string {
