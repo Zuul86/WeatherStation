@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Dapr.Client;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,11 +47,11 @@ app.Run();
 
 // DTO representing the incoming JSON payload from ESP8266
 public record TelemetryPayload(
-    [property: System.Text.Json.Serialization.JsonPropertyName("id")] string Id,
-    [property: System.Text.Json.Serialization.JsonPropertyName("time")] long Time,
-    [property: System.Text.Json.Serialization.JsonPropertyName("sensor_h")] double SensorH,
-    [property: System.Text.Json.Serialization.JsonPropertyName("sensor_t")] double SensorT,
-    [property: System.Text.Json.Serialization.JsonPropertyName("sensor_bp")] double SensorBp,
-    [property: System.Text.Json.Serialization.JsonPropertyName("lat")] double Lat,
-    [property: System.Text.Json.Serialization.JsonPropertyName("long")] double Long
+    [property: JsonPropertyName("id")] string Id,
+    [property: JsonPropertyName("time")] long Time,
+    [property: JsonPropertyName("sensor_h")] double SensorH,
+    [property: JsonPropertyName("sensor_t")] double SensorT,
+    [property: JsonPropertyName("sensor_bp")] double SensorBp,
+    [property: JsonPropertyName("lat")] double Lat,
+    [property: JsonPropertyName("long")] double Long
 );
