@@ -22,7 +22,8 @@ var telemetryProcessor = builder.AddProject<Projects.WeatherStation_TelemetryPro
         AppId = "Telemetry",
         ResourcesPaths = ["../dapr/components"],
         AppPort = 8080,
-        PlacementHostAddress = ""
+        PlacementHostAddress = "",
+        SchedulerHostAddress = ""
     });
 
 // Configure API with Dapr sidecar
@@ -32,7 +33,8 @@ var api = builder.AddProject<Projects.WeatherStation_Api>("api")
     {
         AppId = "Api",
         ResourcesPaths = ["../dapr/components"],
-        PlacementHostAddress = ""
+        PlacementHostAddress = "",
+        SchedulerHostAddress = ""
     });
 
 // Configure Angular Frontend App
