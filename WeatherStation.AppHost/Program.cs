@@ -10,7 +10,7 @@ var postgres = builder.AddPostgres("postgres", password: password, port: 5432)
 var weatherDb = postgres.AddDatabase("weatherdb");
 
 // Configure MQTT Mosquitto broker
-var mqttBroker = builder.AddDockerfile("mqtt-broker", ".")
+var mqttBroker = builder.AddDockerfile("mqtt-broker", "../.devdeploy/mosquitto")
     .WithEndpoint(port: 1883, targetPort: 1883, name: "mqtt")
     .WithAnnotation(new Aspire.Hosting.ApplicationModel.ProxySupportAnnotation { ProxyEnabled = false });
 
@@ -20,7 +20,7 @@ var telemetryProcessor = builder.AddProject<Projects.WeatherStation_TelemetryPro
     .WithDaprSidecar(new DaprSidecarOptions
     {
         AppId = "Telemetry",
-        ResourcesPaths = ["../dapr/components"],
+        ResourcesPaths = ["../.devdeploy/dapr/components"],
         AppPort = 8080,
         PlacementHostAddress = "",
         SchedulerHostAddress = ""
@@ -32,7 +32,7 @@ var api = builder.AddProject<Projects.WeatherStation_Api>("api")
     .WithDaprSidecar(new DaprSidecarOptions
     {
         AppId = "Api",
-        ResourcesPaths = ["../dapr/components"],
+        ResourcesPaths = ["../.devdeploy/dapr/components"],
         PlacementHostAddress = "",
         SchedulerHostAddress = ""
     });

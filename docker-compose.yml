@@ -18,7 +18,7 @@ services:
 
   mqtt-broker:
     build:
-      context: ./WeatherStation.AppHost
+      context: ./.devdeploy/mosquitto
       dockerfile: Dockerfile
     ports:
       - "1883:1883"
@@ -58,7 +58,7 @@ services:
         "--log-level", "info"
       ]
     volumes:
-      - ./dapr/components/production:/components:ro
+      - ./deploy/dapr/components:/components:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -96,7 +96,7 @@ services:
         "--log-level", "info"
       ]
     volumes:
-      - ./dapr/components/production:/components:ro
+      - ./deploy/dapr/components:/components:ro
     depends_on:
       postgres:
         condition: service_healthy
