@@ -13,14 +13,25 @@ builder.Services
     .AddGraphQLServer()
     .AddQueryType<Query>();
 
-// Enable CORS for frontend integration
+// CORS — configurable per environment
+var allowedOrigins = builder.Configuration["AllowedCorsOrigins"];
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        if (!string.IsNullOrEmpty(allowedOrigins))
+        {
+            policy.WithOrigins(allowedOrigins.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        }
+        else
+        {
+            // Permissive CORS for local development only
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        }
     });
 });
 

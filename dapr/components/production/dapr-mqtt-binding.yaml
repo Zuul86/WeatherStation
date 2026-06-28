@@ -1,5 +1,4 @@
-# Local development configuration — used by Aspire AppHost.
-# For production, see dapr/components/production/
+# Production configuration — broker URL injected via environment variables.
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
@@ -7,14 +6,12 @@ metadata:
 spec:
   type: bindings.mqtt
   version: v1
-  ignoreErrors: true
   metadata:
   - name: url
-    value: "tcp://localhost:1883"
+    value: "tcp://mqtt-broker:1883"
   - name: topic
     value: "weather/telemetry"
   - name: consumerID
     value: "telemetry-processor-consumer"
 scopes:
   - Telemetry
-

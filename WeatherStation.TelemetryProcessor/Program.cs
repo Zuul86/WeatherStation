@@ -13,6 +13,8 @@ var app = builder.Build();
 
 app.MapDefaultEndpoints();
 
+var stateStoreName = app.Configuration["DaprStateStoreName"] ?? "statestore";
+
 // Define Dapr input binding handler
 app.MapPost("/mqtt-telemetry", async ([FromBody] TelemetryPayload payload, [FromServices] DaprClient daprClient, ILogger<Program> logger) =>
 {
@@ -28,7 +30,7 @@ app.MapPost("/mqtt-telemetry", async ([FromBody] TelemetryPayload payload, [From
         var rowKey = readingTime.ToString("o"); // Round-trip date/time pattern (ISO 8601)
 
         var metadata = new Dictionary<string, string> { { "contentType", "application/json" } };
-        await daprClient.SaveStateAsync("statestore", rowKey, payload, metadata: metadata);
+        await daprClient.SaveStateAsync(stateStoreName, rowKey, payload, metadata: metadata);
         logger.LogInformation("Successfully stored telemetry in Dapr state store with key: {Key}", rowKey);
         
         return Results.Ok();

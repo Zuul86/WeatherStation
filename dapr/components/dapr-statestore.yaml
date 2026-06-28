@@ -1,3 +1,5 @@
+# Local development configuration — used by Aspire AppHost.
+# For production, see dapr/components/production/
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:

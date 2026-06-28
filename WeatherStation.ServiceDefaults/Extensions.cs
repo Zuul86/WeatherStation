@@ -9,6 +9,7 @@ using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -84,27 +85,37 @@ public static class Extensions
 
     public static IHostApplicationBuilder AddDefaultHealthChecks(this IHostApplicationBuilder builder)
     {
-        builder.Services.AddHealthChecks()
+        var healthChecks = builder.Services.AddHealthChecks()
             // Add a default liveness check to ensure app is responsive
             .AddCheck("self", () => HealthCheckResult.Healthy(), ["liveness"]);
+
+        // Add Dapr sidecar health check
+        healthChecks.AddDapr(tags: ["readiness"]);
+
+        // Add PostgreSQL health check if connection string is configured
+        var pgConnectionString = builder.Configuration.GetConnectionString("statestore");
+        if (!string.IsNullOrEmpty(pgConnectionString))
+        {
+            healthChecks.AddNpgSql(pgConnectionString, name: "postgresql", tags: ["readiness"]);
+        }
 
         return builder;
     }
 
     public static WebApplication MapDefaultEndpoints(this WebApplication app)
     {
-        // Adding health checks endpoints to applications in non-development environments has security implications.
-        // See https://aka.ms/dotnet/aspire/healthchecks for details before enabling these endpoints in production.
-        if (app.Environment.IsDevelopment())
-        {
-            app.MapHealthChecks("/health");
+        // All health check endpoints are available in all environments for container orchestrator probes.
+        app.MapHealthChecks("/health");
 
-            // Only map the liveness endpoint to avoid exposing detailed internal status
-            app.MapHealthChecks("/alive", new HealthCheckOptions
-            {
-                Predicate = r => r.Tags.Contains("liveness")
-            });
-        }
+        app.MapHealthChecks("/alive", new HealthCheckOptions
+        {
+            Predicate = r => r.Tags.Contains("liveness")
+        });
+
+        app.MapHealthChecks("/ready", new HealthCheckOptions
+        {
+            Predicate = r => r.Tags.Contains("readiness")
+        });
 
         return app;
     }

@@ -1,0 +1,15 @@
+# Development overrides — applied automatically by `docker compose up`.
+# Use `docker compose -f docker-compose.yml up` to skip overrides for production-like runs.
+services:
+  postgres:
+    ports:
+      - "5432:5432"
+
+  api:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      AllowedCorsOrigins: ""
+
+  telemetry-processor:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development

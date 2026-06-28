@@ -1,0 +1,15 @@
+# Production configuration — credentials injected via environment variables.
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore
+spec:
+  type: state.postgresql
+  version: v1
+  metadata:
+  - name: connectionString
+    value: "host=postgres port=5432 dbname=${POSTGRES_DB} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} sslmode=disable"
+  - name: tableName
+    value: "state"
+  - name: actorStateStore
+    value: "false"

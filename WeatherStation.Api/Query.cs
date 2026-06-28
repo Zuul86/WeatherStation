@@ -5,12 +5,19 @@ namespace WeatherStation.Api;
 
 public class Query
 {
+    private readonly string _stateStoreName;
+
+    public Query(IConfiguration configuration)
+    {
+        _stateStoreName = configuration["DaprStateStoreName"] ?? "statestore";
+    }
+
     [GraphQLName("listWeatherData")]
     public async Task<WeatherDataResult> GetListWeatherData(
         [Service] DaprClient daprClient,
         int limit = 1000)
     {
-        var payloads = await LoadTelemetryPayloadsAsync(daprClient, limit);
+        var payloads = await LoadTelemetryPayloadsAsync(daprClient, _stateStoreName, limit);
         var items = payloads
             .Select(x => new WeatherDataItem(x.SensorBp, x.SensorH, x.SensorT, x.Time))
             .ToList();
@@ -25,7 +32,7 @@ public class Query
     {
         _ = filter;
         _ = sort;
-        return await LoadWeatherReadingsAsync(daprClient, 1000);
+        return await LoadWeatherReadingsAsync(daprClient, _stateStoreName, 1000);
     }
 
     [GraphQLName("latestReadings")]
@@ -33,7 +40,7 @@ public class Query
         [Service] DaprClient daprClient,
         int count = 10)
     {
-        return await LoadWeatherReadingsAsync(daprClient, count);
+        return await LoadWeatherReadingsAsync(daprClient, _stateStoreName, count);
     }
 
     [GraphQLName("weatherReading")]
@@ -41,11 +48,11 @@ public class Query
         [Service] DaprClient daprClient,
         int id)
     {
-        var items = await LoadWeatherReadingsAsync(daprClient, 1000);
+        var items = await LoadWeatherReadingsAsync(daprClient, _stateStoreName, 1000);
         return items.FirstOrDefault(x => x.Id == id);
     }
 
-    private static async Task<List<TelemetryPayloadDto>> LoadTelemetryPayloadsAsync(DaprClient daprClient, int limit)
+    private static async Task<List<TelemetryPayloadDto>> LoadTelemetryPayloadsAsync(DaprClient daprClient, string stateStoreName, int limit)
     {
         var items = new List<TelemetryPayloadDto>();
 
@@ -59,7 +66,7 @@ public class Query
             }
             """;
 
-            var response = await daprClient.QueryStateAsync<TelemetryPayloadDto>("statestore", queryJson);
+            var response = await daprClient.QueryStateAsync<TelemetryPayloadDto>(stateStoreName, queryJson);
 
             if (response?.Results != null)
             {
@@ -84,9 +91,9 @@ public class Query
             .ToList();
     }
 
-    private static async Task<List<WeatherReadingItem>> LoadWeatherReadingsAsync(DaprClient daprClient, int limit)
+    private static async Task<List<WeatherReadingItem>> LoadWeatherReadingsAsync(DaprClient daprClient, string stateStoreName, int limit)
     {
-        var payloads = await LoadTelemetryPayloadsAsync(daprClient, limit);
+        var payloads = await LoadTelemetryPayloadsAsync(daprClient, stateStoreName, limit);
         return payloads
             .Select((payload, index) => new WeatherReadingItem(
                 index + 1,
