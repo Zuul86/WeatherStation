@@ -1,17 +1,17 @@
-# Production configuration — broker URL injected via environment variables.
+# Production configuration — Azure IoT Hub
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
   name: mqtt-telemetry
 spec:
-  type: bindings.mqtt
+  type: bindings.azure.iothub
   version: v1
   metadata:
-  - name: url
-    value: "tcp://mqtt-broker:1883"
-  - name: topic
-    value: "weather/telemetry"
-  - name: consumerID
+  - name: connectionString
+    secretKeyRef:
+      name: iothub-secrets
+      key: connectionString
+  - name: consumerGroup
     value: "telemetry-processor-consumer"
 scopes:
   - Telemetry

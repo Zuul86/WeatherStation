@@ -1,6 +1,9 @@
 using CommunityToolkit.Aspire.Hosting.Dapr;
+using Microsoft.Extensions.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
+
+var aca = builder.AddAzureContainerAppEnvironment("aca");
 
 // Configure local PostgreSQL database for Dapr State Store
 var password = builder.AddParameter("postgres-password", "postgres", secret: true);
@@ -9,10 +12,15 @@ var postgres = builder.AddPostgres("postgres", password: password, port: 5432)
     .WithPgAdmin();
 var weatherDb = postgres.AddDatabase("weatherdb");
 
-// Configure MQTT Mosquitto broker
-var mqttBroker = builder.AddDockerfile("mqtt-broker", "../.devdeploy/mosquitto")
-    .WithEndpoint(port: 1883, targetPort: 1883, name: "mqtt")
-    .WithAnnotation(new Aspire.Hosting.ApplicationModel.ProxySupportAnnotation { ProxyEnabled = false });
+var daprPath = builder.Environment.IsDevelopment() ? "../.devdeploy/dapr/components" : "../deploy/dapr/components";
+
+// Configure MQTT Mosquitto broker (Dev only)
+if (builder.Environment.IsDevelopment())
+{
+    var mqttBroker = builder.AddDockerfile("mqtt-broker", "../.devdeploy/mosquitto")
+        .WithEndpoint(port: 1883, targetPort: 1883, name: "mqtt")
+        .WithAnnotation(new Aspire.Hosting.ApplicationModel.ProxySupportAnnotation { ProxyEnabled = false });
+}
 
 // Add Dapr sidecar to TelemetryProcessor
 var telemetryProcessor = builder.AddProject<Projects.WeatherStation_TelemetryProcessor>("telemetryprocessor")
@@ -20,7 +28,7 @@ var telemetryProcessor = builder.AddProject<Projects.WeatherStation_TelemetryPro
     .WithDaprSidecar(new DaprSidecarOptions
     {
         AppId = "Telemetry",
-        ResourcesPaths = ["../.devdeploy/dapr/components"],
+        ResourcesPaths = [daprPath],
         AppPort = 8080,
         PlacementHostAddress = "",
         SchedulerHostAddress = ""
@@ -32,14 +40,16 @@ var api = builder.AddProject<Projects.WeatherStation_Api>("api")
     .WithDaprSidecar(new DaprSidecarOptions
     {
         AppId = "Api",
-        ResourcesPaths = ["../.devdeploy/dapr/components"],
+        ResourcesPaths = [daprPath],
         PlacementHostAddress = "",
         SchedulerHostAddress = ""
-    });
+    })
+    .WithExternalHttpEndpoints();
 
 // Configure Angular Frontend App
 builder.AddNpmApp("app", "../WeatherStation.Web")
     .WithReference(api)
-    .WithHttpEndpoint(env: "PORT");
+    .WithHttpEndpoint(env: "PORT")
+    .WithExternalHttpEndpoints();
 
 builder.Build().Run();

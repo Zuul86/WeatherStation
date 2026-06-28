@@ -17,3 +17,5 @@
 /dotnet/
 **/dist/
 **/node_modules/
+/azure-artifacts/
+**/aspire-output/
