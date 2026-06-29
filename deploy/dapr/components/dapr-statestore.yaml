@@ -8,7 +8,9 @@ spec:
   version: v1
   metadata:
   - name: connectionString
-    value: "host=postgres port=5432 dbname=${POSTGRES_DB} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} sslmode=disable"
+    secretKeyRef:
+      name: postgres-secrets
+      key: connectionString
   - name: tableName
     value: "state"
   - name: actorStateStore
