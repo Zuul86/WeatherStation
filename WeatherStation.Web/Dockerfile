@@ -24,8 +24,8 @@ COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
 # Copy built Angular app from build stage
-# Angular 22 esbuild outputs to dist/<project-name>/browser/
-COPY --from=build /app/dist/weather-data/browser /usr/share/nginx/html
+# Angular 22 outputs to dist/<project-name>/browser/
+COPY --from=build /app/dist/WeatherData/browser /usr/share/nginx/html
 
 EXPOSE 80
 

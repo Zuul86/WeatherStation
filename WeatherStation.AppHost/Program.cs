@@ -46,10 +46,10 @@ var api = builder.AddProject<Projects.WeatherStation_Api>("api")
     })
     .WithExternalHttpEndpoints();
 
-// Configure Angular Frontend App
-builder.AddNpmApp("app", "../WeatherStation.Web")
+// Configure Angular Frontend App using the existing Docker build
+builder.AddDockerfile("app", "../WeatherStation.Web")
     .WithReference(api)
-    .WithHttpEndpoint(env: "PORT")
+    .WithHttpEndpoint(port: 4200, targetPort: 80, name: "http")
     .WithExternalHttpEndpoints();
 
 builder.Build().Run();
