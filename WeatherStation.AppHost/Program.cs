@@ -1,9 +1,10 @@
 using CommunityToolkit.Aspire.Hosting.Dapr;
 using Microsoft.Extensions.Hosting;
+using Aspire.Hosting.Kubernetes;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var aca = builder.AddAzureContainerAppEnvironment("aca");
+var k8s = builder.AddKubernetesEnvironment("k8s");
 
 // Configure local PostgreSQL database for Dapr State Store
 var password = builder.AddParameter("postgres-password", "postgres", secret: true);

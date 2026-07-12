@@ -1,0 +1,16 @@
+---
+apiVersion: "v1"
+kind: "ConfigMap"
+metadata:
+  name: "telemetryprocessor-config"
+  labels:
+    app.kubernetes.io/name: "{{ .Chart.Name }}"
+    app.kubernetes.io/component: "telemetryprocessor"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"
+data:
+  OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "{{ .Values.config.telemetryprocessor.OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY }}"
+  ASPNETCORE_FORWARDEDHEADERS_ENABLED: "{{ .Values.config.telemetryprocessor.ASPNETCORE_FORWARDEDHEADERS_ENABLED }}"
+  HTTP_PORTS: "{{ .Values.parameters.telemetryprocessor.port_http | int | toString }}"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "{{ .Values.config.telemetryprocessor.OTEL_EXPORTER_OTLP_ENDPOINT }}"
+  OTEL_EXPORTER_OTLP_PROTOCOL: "{{ .Values.config.telemetryprocessor.OTEL_EXPORTER_OTLP_PROTOCOL }}"
+  OTEL_SERVICE_NAME: "{{ .Values.config.telemetryprocessor.OTEL_SERVICE_NAME }}"
