@@ -25,14 +25,17 @@ Before deploying resources, your Azure subscription must have the appropriate Re
 
 1. **Register the necessary providers**:
    ```bash
-   # Register Container Registry provider
-   az provider register --namespace Microsoft.ContainerRegistry
+    # Register Container Registry provider
+    az provider register --namespace Microsoft.ContainerRegistry
 
-   # Register AKS (Kubernetes Service) provider
-   az provider register --namespace Microsoft.ContainerService
+    # Register AKS (Kubernetes Service) provider
+    az provider register --namespace Microsoft.ContainerService
 
-   # Register IoT Hub provider
-   az provider register --namespace Microsoft.Devices
+    # Register IoT Hub provider
+    az provider register --namespace Microsoft.Devices
+
+    # Register Kubernetes Configuration provider (required for Dapr extension)
+    az provider register --namespace Microsoft.KubernetesConfiguration
    ```
 
 2. **Verify registration progress**:
@@ -82,12 +85,18 @@ Before deploying resources, your Azure subscription must have the appropriate Re
     >   ```
 
 2.  **Enable the Dapr AKS Extension**:
-    *   This installs the Dapr operator and sidecar injector services directly into your cluster.
+    *   This installs the Dapr operator and sidecar injector services directly into your cluster using the Azure Kubernetes Cluster Extension:
     ```bash
-    az aks update \
+    # Add the k8s-extension CLI module (if not already installed)
+    az extension add --name k8s-extension
+
+    # Install Dapr on the cluster
+    az k8s-extension create \
       --resource-group $RESOURCE_GROUP \
-      --name $AKS_CLUSTER_NAME \
-      --enable-dapr
+      --name dapr \
+      --cluster-type managedClusters \
+      --cluster-name $AKS_CLUSTER_NAME \
+      --extension-type Microsoft.Dapr
     ```
 
 3.  **Attach ACR to AKS**:
@@ -108,7 +117,8 @@ Before deploying resources, your Azure subscription must have the appropriate Re
     az iot hub create \
       --resource-group $RESOURCE_GROUP \
       --name $IOTHUB_NAME \
-      --sku F1
+      --sku F1 \
+      --partition-count 2
     ```
 
 2.  **Create the Consumer Group**:
