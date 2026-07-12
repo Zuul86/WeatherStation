@@ -10,12 +10,37 @@ Open your terminal and define these environment variables to keep your commands 
 
 ```bash
 RESOURCE_GROUP="rg-weatherstation"
-LOCATION="eastus"
+LOCATION="eastus2"
 ACR_NAME="weatheracr$RANDOM" # ACR names must be globally unique
 AKS_CLUSTER_NAME="aks-weatherstation"
 IOTHUB_NAME="iothub-weatherstation-$RANDOM" # IoT Hub names must be globally unique
 GH_REPO="your-github-username/WeatherStation" # Replace with your GitHub Repository
 ```
+
+---
+
+## Step 1.5: Register Azure Resource Providers (One-Time Setup)
+
+Before deploying resources, your Azure subscription must have the appropriate Resource Providers registered. This is a subscription-level, one-time bootstrap step.
+
+1. **Register the necessary providers**:
+   ```bash
+   # Register Container Registry provider
+   az provider register --namespace Microsoft.ContainerRegistry
+
+   # Register AKS (Kubernetes Service) provider
+   az provider register --namespace Microsoft.ContainerService
+
+   # Register IoT Hub provider
+   az provider register --namespace Microsoft.Devices
+   ```
+
+2. **Verify registration progress**:
+   Registration takes 1–3 minutes. You can check the status using:
+   ```bash
+   az provider show --namespace Microsoft.ContainerRegistry --query "registrationState"
+   ```
+   Do not proceed to Step 2 until the state shows `"Registered"`.
 
 ---
 
@@ -36,15 +61,25 @@ GH_REPO="your-github-username/WeatherStation" # Replace with your GitHub Reposit
 ## Step 3: Provision AKS with Dapr Enabled
 
 1.  **Create the AKS Cluster**:
-    *   This command provisions a cost-efficient single-node cluster utilizing a burstable `Standard_B2s` VM (2 vCPUs, 4 GiB RAM), which satisfies Dapr's resource requirements.
+    *   This command provisions a cost-efficient single-node cluster utilizing a `Standard_D2s_v7` VM (2 vCPUs, 8 GiB RAM), which satisfies Dapr's resource requirements.
     ```bash
     az aks create \
       --resource-group $RESOURCE_GROUP \
       --name $AKS_CLUSTER_NAME \
       --node-count 1 \
-      --node-vm-size Standard_B2s \
+      --node-vm-size Standard_D2s_v7 \
       --generate-ssh-keys
     ```
+
+    > [!NOTE]
+    > **Troubleshooting: Standard_B2s Not Allowed/Not Available**
+    > If you receive an error stating that `Standard_B2s` is not allowed or available in your subscription or region:
+    > - **Alternative VM Sizes**: Try using a different VM size like `Standard_B2ms` (2 vCPUs, 8 GiB RAM), `Standard_D2s_v3` (2 vCPUs, 8 GiB RAM), or `Standard_DS2_v2` (2 vCPUs, 7 GiB RAM) by changing the `--node-vm-size` argument.
+    > - **Alternative Location**: Change the `LOCATION` variable in **Step 1** to a different region (e.g., `eastus2`, `centralus`, or `westus2`) where the SKU is available, delete the resource group if already created, and restart from Step 2.
+    > - **List Available Sizes**: Run the following command to see what VM sizes are available for your subscription in your target region:
+    >   ```bash
+    >   az vm list-sizes --location $LOCATION --output table
+    >   ```
 
 2.  **Enable the Dapr AKS Extension**:
     *   This installs the Dapr operator and sidecar injector services directly into your cluster.
