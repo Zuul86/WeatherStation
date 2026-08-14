@@ -12,7 +12,9 @@
     "ghcr.io/devcontainers/features/node:2.1.0": {
       "version": "24"
     },
-    "ghcr.io/microsoft/aspire-devcontainer-feature/aspire:2": {}
+    "ghcr.io/microsoft/aspire-devcontainer-feature/aspire:2": {},
+    "ghcr.io/devcontainers/features/azure-cli:1": {},
+    "ghcr.io/azure/azure-dev/azd:0.2.0": {}
   },
   "postCreateCommand": "wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash && dotnet dev-certs https --trust && wget -q https://antigravity.google/cli/install.sh -O - | /bin/bash && dapr init --slim",
   "containerEnv": {
@@ -25,6 +27,8 @@
         "ms-dotnettools.vscode-dotnet-aspire",
         "ms-azuretools.vscode-dapr",
         "ms-azuretools.vscode-docker",
+        "ms-azuretools.azure-dev",
+        "ms-vscode.azure-account",
         "angular.ng-template"
       ]
     }
