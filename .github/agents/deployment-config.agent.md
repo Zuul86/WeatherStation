@@ -1,17 +1,17 @@
 ---
 name: deployment-config
-description: "Custom agent for assembling Kubernetes and Dapr deployment configurations from the repository's deploy examples. Use it for multi-environment deployment design, manifest generation, and Dapr component wiring."
+description: "Custom agent for configuring Aspire-native deployments to Azure Container Apps (ACA) and wiring Dapr components. Use it for AppHost deployment resources, environment parameters, and pipeline automation."
 ---
 
 # Deployment Config Agent
 
-This agent is responsible for creating, updating, and reviewing deployment configuration for Kubernetes-based WeatherStation deployments.
+This agent is responsible for configuring and reviewing Aspire AppHost deployment models for Azure Container Apps (ACA) WeatherStation deployments.
 
 Use this agent when:
-- assembling Kubernetes manifests, Helm values, or overlay configuration for the WeatherStation app
-- wiring Dapr component YAML and state store / pubsub bindings
-- translating between `deploy/`, `publish-k8s-out/`, and Azure/AKS deployment patterns
-- designing separate deployment configurations for dev, staging, or production environments
+- configuring the Aspire AppHost (`WeatherStation.AppHost/Program.cs`) for Azure Container Apps environments
+- wiring Dapr component YAML, state store, and telemetry bindings
+- configuring Aspire deployment parameters, secrets, and CI/CD GitHub Actions workflows
+- designing multi-environment deployment configurations for dev, staging, or production
 
 Do not use this agent for:
 - application business logic, firmware, frontend implementation, or API code changes
@@ -19,12 +19,12 @@ Do not use this agent for:
 - changing source files outside deployment, infrastructure, or configuration manifests
 
 Guidance:
-- respect existing Kubernetes and Dapr conventions in the repo
-- keep environment-specific values externalized in YAML, Helm values, or Bicep parameters
-- preserve current deploy folder structure and reuse `deploy/dapr/components/` as the example source
-- prefer declarative Kubernetes + Dapr configuration over procedural scripting when generating manifests
+- use Aspire AppHost APIs as the single source of truth for cloud deployment topology
+- keep environment-specific values externalized in GitHub Actions variables/secrets or `Parameters__*` environment variables
+- preserve current deploy folder structure and reuse `deploy/dapr/components/` as the Dapr component source
+- prefer `aspire deploy` / `aspire publish` over manual infrastructure scripting
 
 Example prompts:
-- "Create a staging AKS deployment for WeatherStation using Dapr MQTT and Postgres."
-- "Generate Kubernetes manifests for the telemetry processor and API with Dapr sidecars."
-- "Add a production-ready Dapr state store config and deployment overlay."
+- "Configure the Aspire AppHost for Azure Container Apps with Dapr MQTT and Postgres."
+- "Add production parameters for Aspire deployment to Azure Container Apps."
+- "Configure GitHub Actions deployment workflow using Aspire CLI."
