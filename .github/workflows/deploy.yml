@@ -1,4 +1,4 @@
-name: Deploy to AKS with Helm
+name: Deploy with Aspire
 
 on:
   push:
@@ -9,9 +9,10 @@ on:
       - 'WeatherStation.ServiceDefaults/**'
       - 'WeatherStation.TelemetryProcessor/**'
       - 'WeatherStation.Web/**'
-      - 'publish-k8s-out/**'
+      - 'deploy/**'
       - 'WeatherStation.slnx'
       - 'nuget.config'
+      - '.github/workflows/deploy.yml'
 
 permissions:
   contents: read
@@ -35,21 +36,10 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Setup Node (for frontend build)
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22.x
-
-      - name: Restore and build .NET workspace
+      - name: Install Aspire CLI
         run: |
-          dotnet restore
-          dotnet build --no-restore
-
-      - name: Install and build frontend workspace
-        working-directory: WeatherStation.Web
-        run: |
-          npm ci
-          npm run build --if-present
+          curl -sSL https://aspire.dev/install.sh | bash
+          echo "$HOME/.aspire/bin" >> "$GITHUB_PATH"
 
       - name: Azure login
         uses: azure/login@v2
@@ -58,58 +48,10 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Login to Azure Container Registry (ACR)
-        run: |
-          az acr login --name ${{ secrets.ACR_NAME }}
-
-      - name: Build and push Docker images
-        run: |
-          # Build and push Telemetry Processor
-          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/telemetryprocessor:${{ github.sha }} -t ${{ secrets.ACR_NAME }}.azurecr.io/telemetryprocessor:latest -f WeatherStation.TelemetryProcessor/Dockerfile .
-          docker push ${{ secrets.ACR_NAME }}.azurecr.io/telemetryprocessor:${{ github.sha }}
-          docker push ${{ secrets.ACR_NAME }}.azurecr.io/telemetryprocessor:latest
-
-          # Build and push API
-          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/api:${{ github.sha }} -t ${{ secrets.ACR_NAME }}.azurecr.io/api:latest -f WeatherStation.Api/Dockerfile .
-          docker push ${{ secrets.ACR_NAME }}.azurecr.io/api:${{ github.sha }}
-          docker push ${{ secrets.ACR_NAME }}.azurecr.io/api:latest
-
-          # Build and push Angular App
-          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/app:${{ github.sha }} -t ${{ secrets.ACR_NAME }}.azurecr.io/app:latest ./WeatherStation.Web
-          docker push ${{ secrets.ACR_NAME }}.azurecr.io/app:${{ github.sha }}
-          docker push ${{ secrets.ACR_NAME }}.azurecr.io/app:latest
-
-      - name: Set AKS Context
-        uses: azure/aks-set-context@v3
-        with:
-          resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
-          cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
-
-      - name: Deploy Kubernetes Secrets for Dapr
-        run: |
-          # Ensure namespace exists
-          kubectl create namespace weather-station --dry-run=client -o yaml | kubectl apply -f -
-          
-          # Deploy Dapr secrets to the cluster
-          kubectl create secret generic iothub-secrets \
-            --from-literal=connectionString="${{ secrets.IOTHUB_CONNECTION_STRING }}" \
-            --namespace weather-station \
-            --dry-run=client -o yaml | kubectl apply -f -
-            
-          kubectl create secret generic dapr-postgres-secrets \
-            --from-literal=connectionString="${{ secrets.POSTGRES_CONNECTION_STRING }}" \
-            --namespace weather-station \
-            --dry-run=client -o yaml | kubectl apply -f -
-
-      - name: Install Helm
-        uses: azure/setup-helm@v3
-
-      - name: Deploy Helm Chart to AKS
-        run: |
-          helm upgrade --install weather-station ./publish-k8s-out \
-            --namespace weather-station \
-            --create-namespace \
-            --set parameters.telemetryprocessor.telemetryprocessor_image="${{ secrets.ACR_NAME }}.azurecr.io/telemetryprocessor:${{ github.sha }}" \
-            --set parameters.api.api_image="${{ secrets.ACR_NAME }}.azurecr.io/api:${{ github.sha }}" \
-            --set parameters.app.app_image="${{ secrets.ACR_NAME }}.azurecr.io/app:${{ github.sha }}" \
-            --set secrets.postgres.postgres_password="${{ secrets.POSTGRES_PASSWORD }}"
+      - name: Deploy with Aspire
+        run: aspire deploy --apphost ./WeatherStation.AppHost/WeatherStation.AppHost.csproj --environment production --non-interactive
+        env:
+          Azure__SubscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          Azure__ResourceGroup: ${{ vars.AZURE_RESOURCE_GROUP || secrets.AZURE_RESOURCE_GROUP }}
+          Azure__Location: ${{ vars.AZURE_LOCATION || secrets.AZURE_LOCATION || 'eastus' }}
+          Parameters__postgres_password: ${{ secrets.POSTGRES_PASSWORD }}
