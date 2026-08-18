@@ -76,3 +76,71 @@ A bash script is provided in the root of the repository to generate mock data an
 ```
 
 This script uses a temporary Docker container (`eclipse-mosquitto`) to send a JSON payload with a dummy temperature, humidity, and barometric pressure reading over MQTT to the `weather/telemetry` topic. You should see the data appear in your frontend shortly after running it.
+
+---
+
+## Deploying to Azure Container Apps (ACA)
+
+The application is deployed to Azure Container Apps using **.NET Aspire Native Deployment (`aspire deploy`)**.
+
+### Deployment Prerequisites
+
+Before deploying for the first time, complete the following one-time setup (see the detailed [Azure Prerequisites Guide](docs/azure_aca_prerequisites.md) for copy-pasteable CLI commands):
+
+1. **Azure Resource Providers**: Ensure `Microsoft.App`, `Microsoft.ContainerRegistry`, `Microsoft.OperationalInsights`, and `Microsoft.Devices` are registered on your subscription.
+2. **Azure IoT Hub**: An IoT Hub instance with a consumer group named `telemetry-processor-consumer`.
+3. **Microsoft Entra App Registration (for GitHub Actions OIDC)**:
+   - Must have **`Contributor`** AND **`User Access Administrator`** (or `Owner`) roles on the Subscription so Aspire can assign `AcrPull` permissions to the ACA managed identity.
+   - Configured with a GitHub Federated Credential for the `production` environment (`repo:<owner>/<repo>:environment:production`).
+
+### GitHub Actions Configuration
+
+Configure the following under **Settings → Secrets and variables → Actions** (in the `production` environment):
+
+| Name | Type | Value / Purpose |
+| :--- | :--- | :--- |
+| `AZURE_CLIENT_ID` | Secret | App Registration (Client) ID |
+| `AZURE_TENANT_ID` | Secret | Azure Tenant ID |
+| `AZURE_SUBSCRIPTION_ID` | Secret | Azure Subscription ID |
+| `AZURE_RESOURCE_GROUP` | Variable | Target Resource Group (e.g., `rg-weatherstation-prod`) |
+| `AZURE_LOCATION` | Variable | Target Region (e.g., `northcentralus`) |
+| `POSTGRES_PASSWORD` | Secret | Strong password for the PostgreSQL state store database |
+| `IOTHUB_CONNECTION_STRING` | Secret | Connection string for the Azure IoT Hub (`iothubowner`) |
+
+### Triggering Deployment
+
+- **Automated CI/CD**: Push a commit to the `master` branch. The [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) workflow builds all images, pushes to ACR, provisions Azure Container Apps, and configures Dapr automatically.
+- **Local Deployment**: Run `aspire deploy` from your local machine:
+  ```bash
+  Azure__SubscriptionId="<subscription-id>" \
+  Azure__ResourceGroup="rg-weatherstation-prod" \
+  Azure__Location="northcentralus" \
+  Parameters__postgres_password="<your-password>" \
+  aspire deploy --apphost ./WeatherStation.AppHost/WeatherStation.AppHost.csproj --environment production
+  ```
+
+---
+
+### (Optional) Register a Device Identity for your Weather Station
+
+If you are connecting a physical microcontroller device (ESP8266 under `/device`) or an external simulator to your Azure IoT Hub, register a device identity and retrieve its connection string:
+
+```bash
+DEVICE_ID="weather-station-01"
+IOTHUB_NAME="<your-iothub-name>"
+RESOURCE_GROUP="rg-weatherstation-prod"
+
+# 1. Create the device identity
+az iot hub device-identity create \
+  --hub-name "$IOTHUB_NAME" \
+  --device-id "$DEVICE_ID" \
+  --resource-group "$RESOURCE_GROUP"
+
+# 2. Retrieve device connection string (to configure on your device)
+az iot hub device-identity connection-string show \
+  --hub-name "$IOTHUB_NAME" \
+  --device-id "$DEVICE_ID" \
+  --output tsv
+```
+
+
