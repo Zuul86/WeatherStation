@@ -28,7 +28,6 @@
         "ms-azuretools.vscode-dapr",
         "ms-azuretools.vscode-docker",
         "ms-azuretools.azure-dev",
-        "ms-vscode.azure-account",
         "angular.ng-template",
         "github.vscode-github-actions"
       ]
