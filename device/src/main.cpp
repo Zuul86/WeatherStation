@@ -12,6 +12,10 @@
 
 #include "secrets.h"
 
+#ifndef MQTT_TELEMETRY_TOPIC
+#define MQTT_TELEMETRY_TOPIC "weather/telemetry"
+#endif
+
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org");
 
@@ -71,10 +75,12 @@ void publishWeatherData()
     char jsonBuffer[512];
     serializeJson(doc, jsonBuffer);
     
-    Serial.print("Publishing telemetry: ");
+    Serial.print("Publishing telemetry to ");
+    Serial.print(MQTT_TELEMETRY_TOPIC);
+    Serial.print(": ");
     Serial.println(jsonBuffer);
     
-    mqttClient.publish("weather/telemetry", jsonBuffer);
+    mqttClient.publish(MQTT_TELEMETRY_TOPIC, jsonBuffer);
   } 
   else
   {
@@ -94,10 +100,19 @@ void setup() {
   delay(2000);
   
   // Connect via WiFiManager
-  wifiManager.autoConnect("ZOMBIE");
+  wifiManager.autoConnect("WEATHER-STATION");
 
-  // Setup time synchronization
+  // Setup time synchronization (Required for TLS handshake / IoT Hub validation)
   timeClient.begin();
+  Serial.print("Synchronizing time via NTP...");
+  int attempts = 0;
+  while (!timeClient.update() && attempts < 10) {
+    timeClient.forceUpdate();
+    delay(500);
+    attempts++;
+    Serial.print(".");
+  }
+  Serial.println(" done!");
   
   // Set up MQTT client connection security
   if (MQTT_PORT == 8883) {
@@ -116,6 +131,8 @@ void setup() {
     mqttClient.setClient(espClient);
   }
   
+  // Allocate buffer size for Azure IoT Hub SAS tokens & longer topics
+  mqttClient.setBufferSize(512);
   mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
 }
 
