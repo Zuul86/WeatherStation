@@ -58,3 +58,4 @@ jobs:
           Azure__ResourceGroup: ${{ vars.AZURE_RESOURCE_GROUP || secrets.AZURE_RESOURCE_GROUP }}
           Azure__Location: ${{ vars.AZURE_LOCATION || secrets.AZURE_LOCATION || 'eastus' }}
           Parameters__postgres_password: ${{ secrets.POSTGRES_PASSWORD }}
+          Parameters__iothub_connection_string: ${{ secrets.IOTHUB_CONNECTION_STRING }}

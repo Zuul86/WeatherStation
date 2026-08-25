@@ -1,48 +1,76 @@
 using CommunityToolkit.Aspire.Hosting.Dapr;
 using Microsoft.Extensions.Hosting;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
-var aca = builder.AddAzureContainerAppEnvironment("aca");
+var aca = builder.AddAzureContainerAppEnvironment("aca")
+    .WithDaprComponents();
 
-// Configure local PostgreSQL database for Dapr State Store
+// Configure PostgreSQL database for Dapr State Store
 var password = builder.AddParameter("postgres-password", "postgres", secret: true);
 var postgres = builder.AddPostgres("postgres", password: password, port: 5432)
     .WithImage("postgres")
     .WithPgAdmin();
 var weatherDb = postgres.AddDatabase("weatherdb");
 
-var daprPath = builder.Environment.IsDevelopment() ? "../.devdeploy/dapr/components" : "../deploy/dapr/components";
+// Configure State Store Component
+var stateStore = builder.AddDaprStateStore("statestore")
+    .WithMetadata("actorStateStore", "false")
+    .WithMetadata("tableName", "state");
 
-// Configure MQTT Mosquitto broker (Dev only)
-if (builder.Environment.IsDevelopment())
+if (builder.ExecutionContext.IsRunMode)
+{
+    stateStore.WithMetadata("connectionString", "host=localhost port=5432 dbname=weatherdb user=postgres password=postgres sslmode=disable");
+}
+else
+{
+    stateStore.WithMetadata("connectionString", weatherDb.Resource.ConnectionStringExpression!);
+}
+
+// Configure MQTT / IoT Hub Component
+var iothubConnectionString = builder.AddParameter("iothub-connection-string", secret: true);
+
+IResourceBuilder<IDaprComponentResource> mqttTelemetry;
+
+if (builder.ExecutionContext.IsRunMode)
 {
     var mqttBroker = builder.AddDockerfile("mqtt-broker", "../.devdeploy/mosquitto")
         .WithEndpoint(port: 1883, targetPort: 1883, name: "mqtt")
         .WithAnnotation(new Aspire.Hosting.ApplicationModel.ProxySupportAnnotation { ProxyEnabled = false });
+
+    mqttTelemetry = builder.AddDaprComponent("mqtt-telemetry", "bindings.mqtt")
+        .WithMetadata("url", "tcp://localhost:1883")
+        .WithMetadata("topic", "weather/telemetry")
+        .WithMetadata("consumerID", "telemetry-processor-consumer");
+}
+else
+{
+    mqttTelemetry = builder.AddDaprComponent("mqtt-telemetry", "bindings.azure.iothub")
+        .WithMetadata("connectionString", iothubConnectionString.Resource)
+        .WithMetadata("consumerGroup", "telemetry-processor-consumer");
 }
 
 // Add Dapr sidecar to TelemetryProcessor
 var telemetryProcessor = builder.AddProject<Projects.WeatherStation_TelemetryProcessor>("telemetryprocessor")
     .WithHttpEndpoint(port: 8080, name: "http")
-    .WithDaprSidecar(new DaprSidecarOptions
-    {
-        AppId = "Telemetry",
-        ResourcesPaths = [daprPath],
-        AppPort = 8080,
-        PlacementHostAddress = "",
-        SchedulerHostAddress = ""
-    });
+    .WithDaprSidecar(sidecar => sidecar
+        .WithOptions(new DaprSidecarOptions
+        {
+            AppId = "Telemetry",
+            AppPort = 8080,
+        })
+        .WithReference(stateStore)
+        .WithReference(mqttTelemetry));
 
 // Configure API with Dapr sidecar
 var api = builder.AddProject<Projects.WeatherStation_Api>("api")
     .WithHttpEndpoint(port: 5081, name: "http")
-    .WithDaprSidecar(new DaprSidecarOptions
-    {
-        AppId = "Api",
-        ResourcesPaths = [daprPath],
-        PlacementHostAddress = "",
-        SchedulerHostAddress = ""
-    })
+    .WithDaprSidecar(sidecar => sidecar
+        .WithOptions(new DaprSidecarOptions
+        {
+            AppId = "Api",
+        })
+        .WithReference(stateStore))
     .WithExternalHttpEndpoints();
 
 // Configure Angular Frontend App using the existing Docker build
@@ -52,3 +80,4 @@ builder.AddDockerfile("app", "../WeatherStation.Web")
     .WithExternalHttpEndpoints();
 
 builder.Build().Run();
+
