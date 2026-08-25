@@ -38,8 +38,8 @@ void reconnect() {
     } else {
       Serial.print("failed, rc=");
       Serial.print(mqttClient.state());
-      Serial.println(" try again in 5 seconds");
-      delay(5000);
+      Serial.println(" try again in 30 seconds");
+      delay(30000);
     }
   }
 }
@@ -91,6 +91,8 @@ void publishWeatherData()
 WiFiManager wifiManager;
 
 void setup() {
+  Serial.print("I'm Alive! Chip ID: ");
+  Serial.println(ESP.getChipId());
   Serial.begin(9600);
   dht.begin();
   Wire.begin(SDA_PIN, SCL_PIN);
