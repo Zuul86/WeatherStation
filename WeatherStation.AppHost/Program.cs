@@ -13,10 +13,11 @@ var postgres = builder.AddPostgres("postgres", password: password, port: 5432)
     .WithPgAdmin();
 var weatherDb = postgres.AddDatabase("weatherdb");
 
-// Configure State Store Component
-var stateStore = builder.AddDaprStateStore("statestore")
+// Configure PostgreSQL-backed Dapr state store
+var stateStore = builder.AddDaprComponent("statestore", "state.postgresql")
     .WithMetadata("actorStateStore", "false")
-    .WithMetadata("tableName", "state");
+    .WithMetadata("tableName", "state")
+    .WaitFor(postgres);
 
 if (builder.ExecutionContext.IsRunMode)
 {
@@ -55,6 +56,8 @@ else
 // Add Dapr sidecar to TelemetryProcessor
 var telemetryProcessor = builder.AddProject<Projects.WeatherStation_TelemetryProcessor>("telemetryprocessor")
     .WithHttpEndpoint(port: 8080, name: "http")
+    .WithReference(postgres)
+    .WaitFor(postgres)
     .WithDaprSidecar(sidecar => sidecar
         .WithOptions(new DaprSidecarOptions
         {
@@ -67,6 +70,8 @@ var telemetryProcessor = builder.AddProject<Projects.WeatherStation_TelemetryPro
 // Configure API with Dapr sidecar
 var api = builder.AddProject<Projects.WeatherStation_Api>("api")
     .WithHttpEndpoint(port: 5081, name: "http")
+    .WithReference(postgres)
+    .WaitFor(postgres)
     .WithDaprSidecar(sidecar => sidecar
         .WithOptions(new DaprSidecarOptions
         {
