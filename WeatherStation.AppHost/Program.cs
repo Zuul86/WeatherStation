@@ -27,8 +27,7 @@ else
     stateStore.WithMetadata("connectionString", weatherDb.Resource.ConnectionStringExpression!);
 }
 
-// Configure MQTT / IoT Hub Component
-var iothubConnectionString = builder.AddParameter("iothub-connection-string", secret: true);
+
 
 IResourceBuilder<IDaprComponentResource> mqttTelemetry;
 
@@ -45,6 +44,9 @@ if (builder.ExecutionContext.IsRunMode)
 }
 else
 {
+    // Configure MQTT / IoT Hub Component
+    var iothubConnectionString = builder.AddParameter("iothub-connection-string", secret: true);
+
     mqttTelemetry = builder.AddDaprComponent("mqtt-telemetry", "bindings.azure.iothub")
         .WithMetadata("connectionString", iothubConnectionString.Resource)
         .WithMetadata("consumerGroup", "telemetry-processor-consumer");
