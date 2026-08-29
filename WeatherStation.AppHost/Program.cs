@@ -27,7 +27,7 @@ if (builder.ExecutionContext.IsRunMode)
 }
 else
 {
-    stateStore.WithMetadata("connectionString", ReferenceExpression.Create($"host=postgres port=5432 dbname=weatherdb user=postgres password={password} sslmode=disable"));
+    stateStore.WithMetadata("connectionString", ReferenceExpression.Create($"host=postgres port=5432 dbname=postgres user=postgres password={password} sslmode=disable"));
 
     aca.WithParameter("postgresPassword", password);
 
@@ -56,7 +56,7 @@ else
                 new ContainerAppWritableSecret
                 {
                     Name = "postgres-connection-string",
-                    Value = Azure.Provisioning.Expressions.BicepFunction.Interpolate($"host=postgres port=5432 dbname=weatherdb user=postgres password={pgPasswordParam} sslmode=disable")
+                    Value = Azure.Provisioning.Expressions.BicepFunction.Interpolate($"host=postgres port=5432 dbname=postgres user=postgres password={pgPasswordParam} sslmode=disable")
                 }
             ];
             daprComponent.Metadata =
@@ -140,7 +140,7 @@ else
 
 // Add Dapr sidecar to TelemetryProcessor
 var telemetryProcessor = builder.AddProject<Projects.WeatherStation_TelemetryProcessor>("telemetryprocessor")
-    .WithHttpEndpoint(port: 8080, name: "http")
+    .WithHttpEndpoint(port: 8080, targetPort: 8080, name: "http")
     .WithReference(postgres)
     .WithDaprSidecar(sidecar => sidecar
         .WithOptions(new DaprSidecarOptions
@@ -158,12 +158,13 @@ if (builder.ExecutionContext.IsRunMode)
 
 // Configure API with Dapr sidecar
 var api = builder.AddProject<Projects.WeatherStation_Api>("api")
-    .WithHttpEndpoint(port: 5081, name: "http")
+    .WithHttpEndpoint(port: 5081, targetPort: 8080, name: "http")
     .WithReference(postgres)
     .WithDaprSidecar(sidecar => sidecar
         .WithOptions(new DaprSidecarOptions
         {
             AppId = "api",
+            AppPort = 8080
         })
         .WithReference(stateStore))
     .WithExternalHttpEndpoints();
