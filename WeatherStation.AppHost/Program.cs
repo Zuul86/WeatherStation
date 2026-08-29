@@ -16,11 +16,11 @@ var weatherDb = postgres.AddDatabase("weatherdb");
 // Configure PostgreSQL-backed Dapr state store
 var stateStore = builder.AddDaprComponent("statestore", "state.postgresql")
     .WithMetadata("actorStateStore", "false")
-    .WithMetadata("tableName", "state")
-    .WaitFor(postgres);
+    .WithMetadata("tableName", "state");
 
 if (builder.ExecutionContext.IsRunMode)
 {
+    stateStore.WaitFor(postgres);
     stateStore.WithMetadata("connectionString", "host=localhost port=5432 dbname=weatherdb user=postgres password=postgres sslmode=disable");
 }
 else
@@ -57,7 +57,6 @@ else
 var telemetryProcessor = builder.AddProject<Projects.WeatherStation_TelemetryProcessor>("telemetryprocessor")
     .WithHttpEndpoint(port: 8080, name: "http")
     .WithReference(postgres)
-    .WaitFor(postgres)
     .WithDaprSidecar(sidecar => sidecar
         .WithOptions(new DaprSidecarOptions
         {
@@ -67,11 +66,15 @@ var telemetryProcessor = builder.AddProject<Projects.WeatherStation_TelemetryPro
         .WithReference(stateStore)
         .WithReference(mqttTelemetry));
 
+if (builder.ExecutionContext.IsRunMode)
+{
+    telemetryProcessor.WaitFor(postgres);
+}
+
 // Configure API with Dapr sidecar
 var api = builder.AddProject<Projects.WeatherStation_Api>("api")
     .WithHttpEndpoint(port: 5081, name: "http")
     .WithReference(postgres)
-    .WaitFor(postgres)
     .WithDaprSidecar(sidecar => sidecar
         .WithOptions(new DaprSidecarOptions
         {
@@ -79,6 +82,11 @@ var api = builder.AddProject<Projects.WeatherStation_Api>("api")
         })
         .WithReference(stateStore))
     .WithExternalHttpEndpoints();
+
+if (builder.ExecutionContext.IsRunMode)
+{
+    api.WaitFor(postgres);
+}
 
 // Configure Angular Frontend App using the existing Docker build
 builder.AddDockerfile("app", "../WeatherStation.Web")
