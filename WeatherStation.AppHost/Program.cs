@@ -29,6 +29,8 @@ else
 {
     stateStore.WithMetadata("connectionString", ReferenceExpression.Create($"host=postgres port=5432 dbname=weatherdb user=postgres password={password} sslmode=disable"));
 
+    aca.WithParameter("postgresPassword", password);
+
     stateStore.WithAnnotation(new AzureDaprComponentPublishingAnnotation(infrastructure =>
     {
         var managedEnv = infrastructure.GetProvisionableResources()
@@ -91,6 +93,8 @@ else
 {
     // Configure MQTT / IoT Hub Component
     var iothubConnectionString = builder.AddParameter("iothub-connection-string", secret: true);
+
+    aca.WithParameter("iothubConnectionString", iothubConnectionString);
 
     mqttTelemetry = builder.AddDaprComponent("mqtt-telemetry", "bindings.azure.iothub")
         .WithMetadata("connectionString", iothubConnectionString.Resource)
