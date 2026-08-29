@@ -181,5 +181,6 @@ Azure__SubscriptionId="$SUBSCRIPTION_ID" \
 Azure__ResourceGroup="$RESOURCE_GROUP" \
 Azure__Location="$LOCATION" \
 Parameters__postgres_password="<your-password>" \
+Parameters__iothub_connection_string="<your-iothub-connection-string>" \
 aspire deploy --apphost ./WeatherStation.AppHost/WeatherStation.AppHost.csproj --environment production
 ```

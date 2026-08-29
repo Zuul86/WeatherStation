@@ -116,6 +116,7 @@ Configure the following under **Settings → Secrets and variables → Actions**
   Azure__ResourceGroup="rg-weatherstation-prod" \
   Azure__Location="northcentralus" \
   Parameters__postgres_password="<your-password>" \
+  Parameters__iothub_connection_string="<your-iothub-connection-string>" \
   aspire deploy --apphost ./WeatherStation.AppHost/WeatherStation.AppHost.csproj --environment production
   ```
 

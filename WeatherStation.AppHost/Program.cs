@@ -25,7 +25,7 @@ if (builder.ExecutionContext.IsRunMode)
 }
 else
 {
-    stateStore.WithMetadata("connectionString", weatherDb.Resource.ConnectionStringExpression!);
+    stateStore.WithMetadata("connectionString", ReferenceExpression.Create($"host=postgres port=5432 dbname=weatherdb user=postgres password={password} sslmode=disable"));
 }
 
 
@@ -60,7 +60,7 @@ var telemetryProcessor = builder.AddProject<Projects.WeatherStation_TelemetryPro
     .WithDaprSidecar(sidecar => sidecar
         .WithOptions(new DaprSidecarOptions
         {
-            AppId = "Telemetry",
+            AppId = "telemetry",
             AppPort = 8080,
         })
         .WithReference(stateStore)
@@ -78,7 +78,7 @@ var api = builder.AddProject<Projects.WeatherStation_Api>("api")
     .WithDaprSidecar(sidecar => sidecar
         .WithOptions(new DaprSidecarOptions
         {
-            AppId = "Api",
+            AppId = "api",
         })
         .WithReference(stateStore))
     .WithExternalHttpEndpoints();

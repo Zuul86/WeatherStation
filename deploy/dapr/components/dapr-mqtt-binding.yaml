@@ -14,4 +14,4 @@ spec:
   - name: consumerGroup
     value: "telemetry-processor-consumer"
 scopes:
-  - Telemetry
+  - telemetry
