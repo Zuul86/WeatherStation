@@ -37,6 +37,11 @@ else
 
         if (managedEnv is not null)
         {
+            var pgPasswordParam = new Azure.Provisioning.ProvisioningParameter("postgresPassword", typeof(string))
+            {
+                IsSecure = true
+            };
+
             var daprComponent = AzureDaprHostingExtensions.CreateDaprComponent(
                 "stateStore",
                 "statestore",
@@ -44,6 +49,14 @@ else
                 "v1");
 
             daprComponent.Parent = managedEnv;
+            daprComponent.Secrets =
+            [
+                new ContainerAppWritableSecret
+                {
+                    Name = "postgres-connection-string",
+                    Value = Azure.Provisioning.Expressions.BicepFunction.Interpolate($"host=postgres port=5432 dbname=weatherdb user=postgres password={pgPasswordParam} sslmode=disable")
+                }
+            ];
             daprComponent.Metadata =
             [
                 new ContainerAppDaprMetadata { Name = "connectionString", SecretRef = "postgres-connection-string" },
@@ -53,6 +66,7 @@ else
 
             stateStore.AddScopes(daprComponent);
 
+            infrastructure.Add(pgPasswordParam);
             infrastructure.Add(daprComponent);
         }
     }));
@@ -90,6 +104,11 @@ else
 
         if (managedEnv is not null)
         {
+            var iothubConnStrParam = new Azure.Provisioning.ProvisioningParameter("iothubConnectionString", typeof(string))
+            {
+                IsSecure = true
+            };
+
             var daprComponent = AzureDaprHostingExtensions.CreateDaprComponent(
                 "mqttTelemetry",
                 "mqtt-telemetry",
@@ -97,6 +116,10 @@ else
                 "v1");
 
             daprComponent.Parent = managedEnv;
+            daprComponent.Secrets =
+            [
+                new ContainerAppWritableSecret { Name = "iothub-connection-string", Value = iothubConnStrParam }
+            ];
             daprComponent.Metadata =
             [
                 new ContainerAppDaprMetadata { Name = "connectionString", SecretRef = "iothub-connection-string" },
@@ -105,6 +128,7 @@ else
 
             mqttTelemetry.AddScopes(daprComponent);
 
+            infrastructure.Add(iothubConnStrParam);
             infrastructure.Add(daprComponent);
         }
     }));
