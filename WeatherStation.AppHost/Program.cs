@@ -96,7 +96,7 @@ else
 
     aca.WithParameter("iothubConnectionString", iothubConnectionString);
 
-    mqttTelemetry = builder.AddDaprComponent("mqtt-telemetry", "bindings.azure.iothub")
+    mqttTelemetry = builder.AddDaprComponent("mqtt-telemetry", "pubsub.azure.eventhubs")
         .WithMetadata("connectionString", iothubConnectionString.Resource)
         .WithMetadata("consumerGroup", "telemetry-processor-consumer");
 
@@ -116,7 +116,7 @@ else
             var daprComponent = AzureDaprHostingExtensions.CreateDaprComponent(
                 "mqttTelemetry",
                 "mqtt-telemetry",
-                "bindings.azure.iothub",
+                "pubsub.azure.eventhubs",
                 "v1");
 
             daprComponent.Parent = managedEnv;
