@@ -1,3 +1,5 @@
+using Azure.Provisioning.AppContainers;
+using CommunityToolkit.Aspire.Hosting.Azure.Dapr;
 using CommunityToolkit.Aspire.Hosting.Dapr;
 using Microsoft.Extensions.Hosting;
 
@@ -26,6 +28,34 @@ if (builder.ExecutionContext.IsRunMode)
 else
 {
     stateStore.WithMetadata("connectionString", ReferenceExpression.Create($"host=postgres port=5432 dbname=weatherdb user=postgres password={password} sslmode=disable"));
+
+    stateStore.WithAnnotation(new AzureDaprComponentPublishingAnnotation(infrastructure =>
+    {
+        var managedEnv = infrastructure.GetProvisionableResources()
+            .OfType<ContainerAppManagedEnvironment>()
+            .FirstOrDefault();
+
+        if (managedEnv is not null)
+        {
+            var daprComponent = AzureDaprHostingExtensions.CreateDaprComponent(
+                "stateStore",
+                "statestore",
+                "state.postgresql",
+                "v1");
+
+            daprComponent.Parent = managedEnv;
+            daprComponent.Metadata =
+            [
+                new ContainerAppDaprMetadata { Name = "connectionString", SecretRef = "postgres-connection-string" },
+                new ContainerAppDaprMetadata { Name = "tableName", Value = "state" },
+                new ContainerAppDaprMetadata { Name = "actorStateStore", Value = "false" }
+            ];
+
+            stateStore.AddScopes(daprComponent);
+
+            infrastructure.Add(daprComponent);
+        }
+    }));
 }
 
 
@@ -51,6 +81,33 @@ else
     mqttTelemetry = builder.AddDaprComponent("mqtt-telemetry", "bindings.azure.iothub")
         .WithMetadata("connectionString", iothubConnectionString.Resource)
         .WithMetadata("consumerGroup", "telemetry-processor-consumer");
+
+    mqttTelemetry.WithAnnotation(new AzureDaprComponentPublishingAnnotation(infrastructure =>
+    {
+        var managedEnv = infrastructure.GetProvisionableResources()
+            .OfType<ContainerAppManagedEnvironment>()
+            .FirstOrDefault();
+
+        if (managedEnv is not null)
+        {
+            var daprComponent = AzureDaprHostingExtensions.CreateDaprComponent(
+                "mqttTelemetry",
+                "mqtt-telemetry",
+                "bindings.azure.iothub",
+                "v1");
+
+            daprComponent.Parent = managedEnv;
+            daprComponent.Metadata =
+            [
+                new ContainerAppDaprMetadata { Name = "connectionString", SecretRef = "iothub-connection-string" },
+                new ContainerAppDaprMetadata { Name = "consumerGroup", Value = "telemetry-processor-consumer" }
+            ];
+
+            mqttTelemetry.AddScopes(daprComponent);
+
+            infrastructure.Add(daprComponent);
+        }
+    }));
 }
 
 // Add Dapr sidecar to TelemetryProcessor
