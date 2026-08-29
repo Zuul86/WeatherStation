@@ -177,6 +177,7 @@ if (builder.ExecutionContext.IsRunMode)
 // Configure Angular Frontend App using the existing Docker build
 builder.AddDockerfile("app", "../WeatherStation.Web")
     .WithReference(api)
+    .WithEnvironment("API_URL", api.GetEndpoint("http"))
     .WithHttpEndpoint(port: 4200, targetPort: 80, name: "http")
     .WithExternalHttpEndpoints();
 
