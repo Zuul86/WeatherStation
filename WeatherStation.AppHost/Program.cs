@@ -76,38 +76,23 @@ else
 
 
 
-// Configure Azure Storage for Checkpointing
-var storage = builder.AddAzureStorage("storage");
-var checkpointContainer = storage.AddBlobContainer("telemetry-checkpoints");
+// Configure Mosquitto MQTT Broker
+var mqttBroker = builder.AddDockerfile("mqtt-broker", "../.devdeploy/mosquitto")
+    .WithEndpoint(port: 1883, targetPort: 1883, name: "mqtt")
+    .WithAnnotation(new Aspire.Hosting.ApplicationModel.ProxySupportAnnotation { ProxyEnabled = false });
 
-IResourceBuilder<IDaprComponentResource> mqttTelemetry;
+// Configure Dapr MQTT input binding
+var mqttTelemetry = builder.AddDaprComponent("mqtt-telemetry", "bindings.mqtt")
+    .WithMetadata("topic", "weather/telemetry")
+    .WithMetadata("consumerID", "telemetry-processor-consumer");
 
 if (builder.ExecutionContext.IsRunMode)
 {
-    storage.RunAsEmulator();
-
-    var mqttBroker = builder.AddDockerfile("mqtt-broker", "../.devdeploy/mosquitto")
-        .WithEndpoint(port: 1883, targetPort: 1883, name: "mqtt")
-        .WithAnnotation(new Aspire.Hosting.ApplicationModel.ProxySupportAnnotation { ProxyEnabled = false });
-
-    mqttTelemetry = builder.AddDaprComponent("mqtt-telemetry", "bindings.mqtt")
-        .WithMetadata("url", "tcp://localhost:1883")
-        .WithMetadata("topic", "weather/telemetry")
-        .WithMetadata("consumerID", "telemetry-processor-consumer");
+    mqttTelemetry.WithMetadata("url", "tcp://localhost:1883");
 }
 else
 {
-    // Configure MQTT / IoT Hub Component
-    var iothubConnectionString = builder.AddParameter("iothub-connection-string", secret: true);
-    var storageConnectionString = builder.AddParameter("storage-connection-string", secret: true);
-
-    aca.WithParameter("iothubConnectionString", iothubConnectionString);
-    aca.WithParameter("storageConnectionString", storageConnectionString);
-
-    mqttTelemetry = builder.AddDaprComponent("mqtt-telemetry", "bindings.azure.eventhubs")
-        .WithMetadata("connectionString", iothubConnectionString.Resource)
-        .WithMetadata("consumerGroup", "telemetry-processor-consumer")
-        .WithMetadata("storageContainerName", "telemetry-checkpoints");
+    mqttTelemetry.WithMetadata("url", "tcp://mqtt-broker:1883");
 
     mqttTelemetry.WithAnnotation(new AzureDaprComponentPublishingAnnotation(infrastructure =>
     {
@@ -117,40 +102,22 @@ else
 
         if (managedEnv is not null)
         {
-            var iothubConnStrParam = new Azure.Provisioning.ProvisioningParameter("iothubConnectionString", typeof(string))
-            {
-                IsSecure = true
-            };
-
-            var storageConnStrParam = new Azure.Provisioning.ProvisioningParameter("storageConnectionString", typeof(string))
-            {
-                IsSecure = true
-            };
-
             var daprComponent = AzureDaprHostingExtensions.CreateDaprComponent(
                 "mqttTelemetry",
                 "mqtt-telemetry",
-                "bindings.azure.eventhubs",
+                "bindings.mqtt",
                 "v1");
 
             daprComponent.Parent = managedEnv;
-            daprComponent.Secrets =
-            [
-                new ContainerAppWritableSecret { Name = "iothub-connection-string", Value = iothubConnStrParam },
-                new ContainerAppWritableSecret { Name = "storage-connection-string", Value = storageConnStrParam }
-            ];
             daprComponent.Metadata =
             [
-                new ContainerAppDaprMetadata { Name = "connectionString", SecretRef = "iothub-connection-string" },
-                new ContainerAppDaprMetadata { Name = "storageConnectionString", SecretRef = "storage-connection-string" },
-                new ContainerAppDaprMetadata { Name = "storageContainerName", Value = "telemetry-checkpoints" },
-                new ContainerAppDaprMetadata { Name = "consumerGroup", Value = "telemetry-processor-consumer" }
+                new ContainerAppDaprMetadata { Name = "url", Value = "tcp://mqtt-broker:1883" },
+                new ContainerAppDaprMetadata { Name = "topic", Value = "weather/telemetry" },
+                new ContainerAppDaprMetadata { Name = "consumerID", Value = "telemetry-processor-consumer" }
             ];
 
             mqttTelemetry.AddScopes(daprComponent);
 
-            infrastructure.Add(iothubConnStrParam);
-            infrastructure.Add(storageConnStrParam);
             infrastructure.Add(daprComponent);
         }
     }));
