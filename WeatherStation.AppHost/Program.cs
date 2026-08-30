@@ -76,10 +76,16 @@ else
 
 
 
+// Configure Azure Storage for Checkpointing
+var storage = builder.AddAzureStorage("storage");
+var checkpointContainer = storage.AddBlobContainer("telemetry-checkpoints");
+
 IResourceBuilder<IDaprComponentResource> mqttTelemetry;
 
 if (builder.ExecutionContext.IsRunMode)
 {
+    storage.RunAsEmulator();
+
     var mqttBroker = builder.AddDockerfile("mqtt-broker", "../.devdeploy/mosquitto")
         .WithEndpoint(port: 1883, targetPort: 1883, name: "mqtt")
         .WithAnnotation(new Aspire.Hosting.ApplicationModel.ProxySupportAnnotation { ProxyEnabled = false });
@@ -93,12 +99,15 @@ else
 {
     // Configure MQTT / IoT Hub Component
     var iothubConnectionString = builder.AddParameter("iothub-connection-string", secret: true);
+    var storageConnectionString = builder.AddParameter("storage-connection-string", secret: true);
 
     aca.WithParameter("iothubConnectionString", iothubConnectionString);
+    aca.WithParameter("storageConnectionString", storageConnectionString);
 
     mqttTelemetry = builder.AddDaprComponent("mqtt-telemetry", "bindings.azure.eventhubs")
         .WithMetadata("connectionString", iothubConnectionString.Resource)
-        .WithMetadata("consumerGroup", "telemetry-processor-consumer");
+        .WithMetadata("consumerGroup", "telemetry-processor-consumer")
+        .WithMetadata("storageContainerName", "telemetry-checkpoints");
 
     mqttTelemetry.WithAnnotation(new AzureDaprComponentPublishingAnnotation(infrastructure =>
     {
@@ -113,6 +122,11 @@ else
                 IsSecure = true
             };
 
+            var storageConnStrParam = new Azure.Provisioning.ProvisioningParameter("storageConnectionString", typeof(string))
+            {
+                IsSecure = true
+            };
+
             var daprComponent = AzureDaprHostingExtensions.CreateDaprComponent(
                 "mqttTelemetry",
                 "mqtt-telemetry",
@@ -122,17 +136,21 @@ else
             daprComponent.Parent = managedEnv;
             daprComponent.Secrets =
             [
-                new ContainerAppWritableSecret { Name = "iothub-connection-string", Value = iothubConnStrParam }
+                new ContainerAppWritableSecret { Name = "iothub-connection-string", Value = iothubConnStrParam },
+                new ContainerAppWritableSecret { Name = "storage-connection-string", Value = storageConnStrParam }
             ];
             daprComponent.Metadata =
             [
                 new ContainerAppDaprMetadata { Name = "connectionString", SecretRef = "iothub-connection-string" },
+                new ContainerAppDaprMetadata { Name = "storageConnectionString", SecretRef = "storage-connection-string" },
+                new ContainerAppDaprMetadata { Name = "storageContainerName", Value = "telemetry-checkpoints" },
                 new ContainerAppDaprMetadata { Name = "consumerGroup", Value = "telemetry-processor-consumer" }
             ];
 
             mqttTelemetry.AddScopes(daprComponent);
 
             infrastructure.Add(iothubConnStrParam);
+            infrastructure.Add(storageConnStrParam);
             infrastructure.Add(daprComponent);
         }
     }));
