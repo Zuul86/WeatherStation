@@ -35,4 +35,11 @@ describe('ReadingsTableComponent', () => {
     expect(component.totalRecords).toBe(25);
     expect(component.pageCount).toBe(3);
   });
+
+  it('formats timestamps using a fixed UTC-6 offset instead of DST-dependent timezone rules', () => {
+    const formatted = component.formatTimestamp('2024-08-01T12:00:00Z');
+
+    expect(formatted).toContain('6:00:00 AM');
+    expect(formatted).toContain('-0600');
+  });
 });
