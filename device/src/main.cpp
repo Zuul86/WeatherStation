@@ -26,8 +26,6 @@ WiFiClient espClient; // Use standard WiFiClient for dev / non-TLS
 WiFiClientSecure espClientSecure; // Use WiFiClientSecure for TLS (Port 8883)
 PubSubClient mqttClient;
 
-unsigned long lastMsg = 0;
-
 void reconnect() {
   while (!mqttClient.connected()) {
     Serial.print("Attempting MQTT connection...");
@@ -139,15 +137,28 @@ void setup() {
 }
 
 void loop() {
+  // Ensure MQTT is connected
   if (!mqttClient.connected()) {
     reconnect();
   }
   mqttClient.loop();
 
-  unsigned long now = millis();
-  if (now - lastMsg > DATA_COLLECTION_INTERVAL) {
-    lastMsg = now;
-    timeClient.update();
-    publishWeatherData();
-  }
+  // Update time and publish weather data
+  timeClient.update();
+  publishWeatherData();
+  
+  // Allow MQTT to process the publish
+  delay(100);
+  
+  // Disconnect MQTT and WiFi to save power during sleep
+  mqttClient.disconnect();
+  WiFi.disconnect(true); // true = turn off RF module
+  
+  Serial.println("Entering deep sleep...");
+  Serial.flush();
+  
+  // Sleep for DATA_COLLECTION_INTERVAL milliseconds
+  // Convert to microseconds (DATA_COLLECTION_INTERVAL * 1000)
+  // Note: ESP8266 GPIO16 (D0) must be connected to RST pin for wake-up
+  ESP.deepSleep(DATA_COLLECTION_INTERVAL * 1000);
 }
