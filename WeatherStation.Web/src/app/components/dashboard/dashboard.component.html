@@ -50,5 +50,12 @@
     (deviceChange)="onDeviceChange($event)"
   ></app-dashboard-controls>
 
-  <app-readings-table [readings]="readings()" [selectedDevice]="selectedDevice()"></app-readings-table>
+  <app-readings-table
+    [readings]="readings()"
+    [selectedDevice]="selectedDevice()"
+    [pageNumberValue]="currentPage()"
+    [totalCount]="totalRecords()"
+    [loading]="isPageLoading()"
+    (pageChange)="setPage($event)"
+  ></app-readings-table>
 </main>

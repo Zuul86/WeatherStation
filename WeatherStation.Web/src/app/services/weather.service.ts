@@ -22,6 +22,15 @@ interface GetLatestReadingsResult {
   latestReadings: WeatherReadingRaw[];
 }
 
+interface PaginatedReadingsResult {
+  paginatedReadings: {
+    totalCount: number;
+    pageNumber: number;
+    pageSize: number;
+    items: WeatherReadingRaw[];
+  };
+}
+
 interface GetWeatherReadingResult {
   weatherReading: WeatherReadingRaw | null;
 }
@@ -68,6 +77,24 @@ export class WeatherService {
         humidity
         pressure
         deviceId
+      }
+    }
+  `;
+
+  private GET_PAGINATED_READINGS = gql`
+    query GetPaginatedReadings($pageNumber: Int!, $pageSize: Int!) {
+      paginatedReadings(pageNumber: $pageNumber, pageSize: $pageSize) {
+        totalCount
+        pageNumber
+        pageSize
+        items {
+          id
+          timestamp
+          temperatureFahrenheit
+          humidity
+          pressure
+          deviceId
+        }
       }
     }
   `;
@@ -119,6 +146,30 @@ export class WeatherService {
             .map((item) => this.normalize(item as WeatherReadingRaw))
             .filter((reading): reading is WeatherReading => reading !== null),
         ),
+      );
+  }
+
+  getPaginatedReadings(pageNumber: number, pageSize: number): Observable<{ items: WeatherReading[]; totalCount: number; pageNumber: number; pageSize: number }> {
+    return this.apollo
+      .watchQuery<PaginatedReadingsResult>({
+        query: this.GET_PAGINATED_READINGS,
+        variables: { pageNumber, pageSize },
+        fetchPolicy: 'network-only',
+      })
+      .valueChanges.pipe(
+        map((r) => {
+          const page = r.data?.paginatedReadings;
+          const items = (page?.items ?? [])
+            .map((item) => this.normalize(item as WeatherReadingRaw))
+            .filter((reading): reading is WeatherReading => reading !== null);
+
+          return {
+            items,
+            totalCount: page?.totalCount ?? 0,
+            pageNumber: page?.pageNumber ?? pageNumber,
+            pageSize: page?.pageSize ?? pageSize,
+          };
+        }),
       );
   }
 

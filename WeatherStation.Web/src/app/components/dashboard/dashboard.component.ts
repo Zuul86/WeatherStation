@@ -20,6 +20,10 @@ export class DashboardComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly readings = signal<WeatherReading[]>([]);
+  readonly totalRecords = signal(0);
+  readonly currentPage = signal(1);
+  readonly pageSize = 10;
+  readonly isPageLoading = signal(false);
   readonly latestReading = computed(() => this.readings()[0] ?? null);
   readonly selectedDevice = signal<string | null>(null);
   readonly devices = computed(() =>
@@ -44,21 +48,38 @@ export class DashboardComponent {
 
   onDeviceChange(device: string | null): void {
     this.selectedDevice.set(device);
+    this.currentPage.set(1);
+    this.loadReadings();
+  }
+
+  setPage(page: number): void {
+    const nextPage = Math.max(1, page);
+    if (nextPage === this.currentPage()) {
+      return;
+    }
+
+    this.currentPage.set(nextPage);
+    this.loadReadings();
   }
 
   private loadReadings(): void {
     this.isRefreshing.set(true);
+    this.isPageLoading.set(true);
 
     this.weatherService
-      .getLatestReadings(12)
+      .getPaginatedReadings(this.currentPage(), this.pageSize)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (readings) => {
-          this.readings.set(readings);
+        next: ({ items, totalCount, pageNumber }) => {
+          this.readings.set(items);
+          this.totalRecords.set(totalCount);
+          this.currentPage.set(pageNumber);
           this.isRefreshing.set(false);
+          this.isPageLoading.set(false);
         },
         error: () => {
           this.isRefreshing.set(false);
+          this.isPageLoading.set(false);
         },
       });
   }

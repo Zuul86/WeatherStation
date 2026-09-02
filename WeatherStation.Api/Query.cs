@@ -43,6 +43,39 @@ public class Query
         return await LoadWeatherReadingsAsync(daprClient, _stateStoreName, count);
     }
 
+    [GraphQLName("paginatedReadings")]
+    public async Task<WeatherReadingPageResult> GetPaginatedReadings(
+        [Service] DaprClient daprClient,
+        int pageNumber = 1,
+        int pageSize = 10)
+    {
+        var safePageNumber = Math.Max(pageNumber, 1);
+        var safePageSize = Math.Clamp(pageSize, 1, 50);
+
+        var allPayloads = await LoadTelemetryPayloadsAsync(daprClient, _stateStoreName, 1000);
+        var orderedPayloads = allPayloads
+            .OrderByDescending(x => x.Time)
+            .ToList();
+
+        var totalCount = orderedPayloads.Count;
+        var pagePayloads = orderedPayloads
+            .Skip((safePageNumber - 1) * safePageSize)
+            .Take(safePageSize)
+            .ToList();
+
+        var items = pagePayloads
+            .Select((payload, index) => new WeatherReadingItem(
+                (safePageNumber - 1) * safePageSize + index + 1,
+                DateTimeOffset.FromUnixTimeSeconds(payload.Time).UtcDateTime.ToString("o"),
+                ConvertToFahrenheit(payload.SensorT),
+                payload.SensorH,
+                payload.SensorBp,
+                null))
+            .ToList();
+
+        return new WeatherReadingPageResult(totalCount, safePageNumber, safePageSize, items);
+    }
+
     [GraphQLName("weatherReading")]
     public async Task<WeatherReadingItem?> GetWeatherReading(
         [Service] DaprClient daprClient,
@@ -125,6 +158,13 @@ public record WeatherReadingItem(
     [property: GraphQLName("humidity")] double Humidity,
     [property: GraphQLName("pressure")] double Pressure,
     [property: GraphQLName("deviceId")] string? DeviceId
+);
+
+public record WeatherReadingPageResult(
+    [property: GraphQLName("totalCount")] int TotalCount,
+    [property: GraphQLName("pageNumber")] int PageNumber,
+    [property: GraphQLName("pageSize")] int PageSize,
+    [property: GraphQLName("items")] List<WeatherReadingItem> Items
 );
 
 // DTO representing the state stored in Dapr

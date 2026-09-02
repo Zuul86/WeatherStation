@@ -5,3 +5,7 @@
 .sortable {
   user-select: none;
 }
+
+button {
+  transition: all 160ms ease;
+}

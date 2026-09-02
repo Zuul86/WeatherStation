@@ -2,11 +2,52 @@
   <div class="mb-4 flex items-center justify-between">
     <div>
       <h2 class="text-lg font-semibold text-white">Recent readings</h2>
-      <p class="mt-1 text-sm font-medium text-slate-300">Latest weather samples from the network</p>
+      <p class="mt-1 text-sm font-medium text-slate-300">Total records: {{ totalRecords() }}</p>
     </div>
   </div>
 
-  <div class="overflow-x-auto">
+  <div class="mb-4 flex items-center justify-between gap-3">
+    <div class="text-sm text-slate-300">Page {{ pageNumber() }} of {{ pageCount() }}</div>
+    <div class="flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        class="rounded-md border border-white/15 bg-slate-800 px-3 py-1.5 text-sm font-medium text-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
+        [disabled]="pageNumber() === 1 || loading"
+        (click)="previousPage()"
+      >
+        Previous
+      </button>
+
+      @for (page of pageNumbers(); track page) {
+        <button
+          type="button"
+          class="min-w-9 rounded-md border px-2.5 py-1.5 text-sm font-medium transition-colors"
+          [class.border-sky-400="page === pageNumber()"]
+          [class.bg-sky-500/15]="page === pageNumber()"
+          [class.text-white]="page === pageNumber()"
+          [class.border-white/15]="page !== pageNumber()"
+          [class.bg-slate-800]="page !== pageNumber()"
+          [class.text-slate-200]="page !== pageNumber()"
+          [class.cursor-not-allowed]="loading"
+          [disabled]="loading"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+      }
+
+      <button
+        type="button"
+        class="rounded-md border border-white/15 bg-slate-800 px-3 py-1.5 text-sm font-medium text-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
+        [disabled]="pageNumber() >= pageCount() || loading"
+        (click)="nextPage()"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto transition-opacity duration-200" [class.opacity-60]="loading" [class.pointer-events-none]="loading">
     <table class="min-w-full border-collapse text-sm text-slate-300">
       <thead>
         <tr class="border-b border-white/15 text-left text-xs uppercase tracking-[0.24em] text-slate-300">
@@ -29,5 +70,48 @@
         }
       </tbody>
     </table>
+  </div>
+
+  <div class="mt-4 flex items-center justify-between gap-3">
+    <div class="text-sm text-slate-300">
+      Showing {{ rangeStart() }}-{{ rangeEnd() }} of {{ totalRecords() }}
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        class="rounded-md border border-white/15 bg-slate-800 px-3 py-1.5 text-sm font-medium text-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
+        [disabled]="pageNumber() === 1 || loading"
+        (click)="previousPage()"
+      >
+        Previous
+      </button>
+
+      @for (page of pageNumbers(); track page) {
+        <button
+          type="button"
+          class="min-w-9 rounded-md border px-2.5 py-1.5 text-sm font-medium transition-colors"
+          [class.border-sky-400="page === pageNumber()"]
+          [class.bg-sky-500/15]="page === pageNumber()"
+          [class.text-white]="page === pageNumber()"
+          [class.border-white/15]="page !== pageNumber()"
+          [class.bg-slate-800]="page !== pageNumber()"
+          [class.text-slate-200]="page !== pageNumber()"
+          [class.cursor-not-allowed]="loading"
+          [disabled]="loading"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+      }
+
+      <button
+        type="button"
+        class="rounded-md border border-white/15 bg-slate-800 px-3 py-1.5 text-sm font-medium text-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
+        [disabled]="pageNumber() >= pageCount() || loading"
+        (click)="nextPage()"
+      >
+        Next
+      </button>
+    </div>
   </div>
 </section>
