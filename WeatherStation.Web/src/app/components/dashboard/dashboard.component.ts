@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { interval } from 'rxjs';
 import { WeatherReading } from '../../models/weather-reading.model';
 import { WeatherService } from '../../services/weather.service';
 import { DashboardControlsComponent } from './dashboard-controls.component';
@@ -39,7 +38,6 @@ export class DashboardComponent {
 
   constructor() {
     this.loadReadings();
-    this.startAutoRefresh();
   }
 
   refresh(): void {
@@ -84,9 +82,4 @@ export class DashboardComponent {
       });
   }
 
-  private startAutoRefresh(): void {
-    interval(15000)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.loadReadings());
-  }
 }

@@ -102,6 +102,6 @@ export class ReadingsTableComponent {
 
   formatTimestamp(value: string): string {
     const parsed = new Date(value);
-    return this.datePipe.transform(parsed, 'MMM d, yyyy HH:mm') ?? value;
+    return this.datePipe.transform(parsed, 'MMM d, yyyy h:mm:ss a z', 'America/Chicago') ?? value;
   }
 }
