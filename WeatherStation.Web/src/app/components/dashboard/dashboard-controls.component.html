@@ -26,7 +26,7 @@
 
   <div class="flex flex-wrap items-center gap-3 text-sm text-slate-300">
     <span class="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 font-medium text-slate-100">
-      {{ latestReadingTimestamp ? (latestReadingTimestamp | date:'MMM d, yyyy h:mm:ss a (O)':'GMT-06:00') : 'Waiting for data' }}
+      {{ latestReadingTimestamp ? (latestReadingTimestamp | date:'EEEE, MMM d, yyyy h:mm:ss a':'GMT-06:00') : 'Waiting for data' }}
     </span>
   </div>
 </section>
