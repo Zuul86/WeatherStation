@@ -13,7 +13,7 @@ export class ReadingCardComponent {
   @Input() value: number | null = null;
   @Input() unit = '';
   @Input() icon = '📊';
-  @Input() kind: 'temperature' | 'humidity' | 'pressure' = 'temperature';
+  @Input() kind: 'temperature' | 'humidity' | 'pressure' | 'pm1_0' | 'pm2_5' | 'pm10_0' | string = 'temperature';
 
   get displayValue(): string {
     if (this.value == null || Number.isNaN(this.value)) {
@@ -26,6 +26,10 @@ export class ReadingCardComponent {
       case 'humidity':
         return this.value.toFixed(0);
       case 'pressure':
+        return this.value.toFixed(0);
+      case 'pm1_0':
+      case 'pm2_5':
+      case 'pm10_0':
         return this.value.toFixed(0);
       default:
         return this.value.toString();

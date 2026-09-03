@@ -16,9 +16,8 @@ describe('ReadingsTableComponent', () => {
   });
 
   it('shows a 10-item page and the total record count', () => {
-    component.pageSize = 10;
-    component.pageNumber = 1;
-    component.totalRecords = 25;
+    component.pageNumberValue = 1;
+    component.totalCount = 25;
     component.readings = Array.from({ length: 10 }, (_, index) => ({
       id: index + 1,
       timestamp: new Date(Date.now() - index * 60000).toISOString(),
@@ -26,20 +25,22 @@ describe('ReadingsTableComponent', () => {
       humidity: 40 + index,
       pressure: 1010 + index,
       deviceId: index % 3 === 0 ? 'A' : 'B',
+      pm1_0: 20 + index,
+      pm2_5: 35 + index,
+      pm10_0: 50 + index,
     }));
 
     fixture.detectChanges();
 
     const rows = fixture.debugElement.queryAll(By.css('tbody tr'));
     expect(rows.length).toBe(10);
-    expect(component.totalRecords).toBe(25);
-    expect(component.pageCount).toBe(3);
+    expect(component.totalRecords()).toBe(25);
+    expect(component.pageCount()).toBe(3);
   });
 
   it('formats timestamps using a fixed UTC-6 offset instead of DST-dependent timezone rules', () => {
     const formatted = component.formatTimestamp('2024-08-01T12:00:00Z');
 
-    expect(formatted).toContain('6:00:00 AM');
-    expect(formatted).toContain('-0600');
+    expect(formatted).toBe('Aug 1, 6:00 AM');
   });
 });

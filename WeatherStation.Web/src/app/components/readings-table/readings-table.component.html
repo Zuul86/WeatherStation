@@ -55,6 +55,9 @@
           <th class="sortable cursor-pointer px-3 py-3" (click)="toggleSort('temperatureFahrenheit')">Temp</th>
           <th class="sortable cursor-pointer px-3 py-3" (click)="toggleSort('humidity')">Humidity</th>
           <th class="sortable cursor-pointer px-3 py-3" (click)="toggleSort('pressure')">Pressure</th>
+          <th class="sortable cursor-pointer px-3 py-3" (click)="toggleSort('pm1_0')">PM1.0</th>
+          <th class="sortable cursor-pointer px-3 py-3" (click)="toggleSort('pm2_5')">PM2.5</th>
+          <th class="sortable cursor-pointer px-3 py-3" (click)="toggleSort('pm10_0')">PM10</th>
           <th class="px-3 py-3">Device</th>
         </tr>
       </thead>
@@ -65,6 +68,9 @@
             <td class="px-3 py-3 font-medium text-slate-200">{{ reading.temperatureFahrenheit | number:'1.1-1' }} °F</td>
             <td class="px-3 py-3 font-medium text-slate-200">{{ reading.humidity | number:'1.0-0' }}%</td>
             <td class="px-3 py-3 font-medium text-slate-200">{{ reading.pressure | number:'1.0-0' }} hPa</td>
+            <td class="px-3 py-3 font-medium text-slate-200">{{ reading.pm1_0 | number:'1.0-0' }} ug/m3</td>
+            <td class="px-3 py-3 font-medium text-slate-200">{{ reading.pm2_5 | number:'1.0-0' }} ug/m3</td>
+            <td class="px-3 py-3 font-medium text-slate-200">{{ reading.pm10_0 | number:'1.0-0' }} ug/m3</td>
             <td class="px-3 py-3 font-medium text-slate-200">{{ reading.deviceId ?? 'Unknown' }}</td>
           </tr>
         }

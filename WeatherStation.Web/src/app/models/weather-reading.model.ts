@@ -5,4 +5,7 @@ export interface WeatherReading {
   humidity: number;
   pressure: number;
   deviceId: string | null;
+  pm1_0: number;
+  pm2_5: number;
+  pm10_0: number;
 }

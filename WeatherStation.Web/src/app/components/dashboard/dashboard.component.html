@@ -11,7 +11,7 @@
     </div>
 
     @if (latestReading()) {
-      <div class="mt-8 grid gap-4 md:grid-cols-3">
+      <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <app-reading-card
           label="Temperature"
           [value]="latestReading()?.temperatureFahrenheit"
@@ -32,6 +32,27 @@
           unit="hPa"
           icon="🧭"
           kind="pressure"
+        ></app-reading-card>
+        <app-reading-card
+          label="PM1.0 (Atmospheric)"
+          [value]="latestReading()?.pm1_0"
+          unit="ug/m3"
+          icon="🌫️"
+          kind="pm1_0"
+        ></app-reading-card>
+        <app-reading-card
+          label="PM2.5 (Atmospheric)"
+          [value]="latestReading()?.pm2_5"
+          unit="ug/m3"
+          icon="🌫️"
+          kind="pm2_5"
+        ></app-reading-card>
+        <app-reading-card
+          label="PM10 (Atmospheric)"
+          [value]="latestReading()?.pm10_0"
+          unit="ug/m3"
+          icon="🌫️"
+          kind="pm10_0"
         ></app-reading-card>
       </div>
     } @else {

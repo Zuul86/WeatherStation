@@ -12,6 +12,9 @@ interface WeatherReadingRaw {
   humidity?: number | string;
   pressure?: number | string;
   deviceId?: string | null;
+  pm1_0?: number | string;
+  pm2_5?: number | string;
+  pm10_0?: number | string;
 }
 
 interface GetWeatherReadingsResult {
@@ -52,6 +55,9 @@ export class WeatherService {
       humidity: Number(obj.humidity ?? 0),
       pressure: Number(obj.pressure ?? 0),
       deviceId: obj.deviceId ?? null,
+      pm1_0: Number(obj.pm1_0 ?? 0),
+      pm2_5: Number(obj.pm2_5 ?? 0),
+      pm10_0: Number(obj.pm10_0 ?? 0),
     };
   }
 
@@ -64,6 +70,9 @@ export class WeatherService {
         humidity
         pressure
         deviceId
+        pm1_0
+        pm2_5
+        pm10_0
       }
     }
   `;
@@ -77,6 +86,9 @@ export class WeatherService {
         humidity
         pressure
         deviceId
+        pm1_0
+        pm2_5
+        pm10_0
       }
     }
   `;
@@ -94,6 +106,9 @@ export class WeatherService {
           humidity
           pressure
           deviceId
+          pm1_0
+          pm2_5
+          pm10_0
         }
       }
     }
@@ -108,6 +123,9 @@ export class WeatherService {
         humidity
         pressure
         deviceId
+        pm1_0
+        pm2_5
+        pm10_0
       }
     }
   `;

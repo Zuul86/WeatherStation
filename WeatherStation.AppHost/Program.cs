@@ -178,13 +178,13 @@ else
 
 // Add Dapr sidecar to TelemetryProcessor
 var telemetryProcessor = builder.AddProject<Projects.WeatherStation_TelemetryProcessor>("telemetryprocessor")
-    .WithHttpEndpoint(port: 8080, targetPort: 8080, name: "http")
+    .WithHttpEndpoint(port: 5082, targetPort: 5080, name: "http")
     .WithReference(postgres)
     .WithDaprSidecar(sidecar => sidecar
         .WithOptions(new DaprSidecarOptions
         {
             AppId = "telemetry",
-            AppPort = 8080,
+            AppPort = 5080,
         })
         .WithReference(stateStore)
         .WithReference(mqttTelemetry));

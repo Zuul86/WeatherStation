@@ -13,3 +13,15 @@
 :host(.metric-card--pressure) article {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 18px 40px rgba(129, 140, 248, 0.16);
 }
+
+:host(.metric-card--pm1_0) article {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 18px 40px rgba(168, 85, 247, 0.16);
+}
+
+:host(.metric-card--pm2_5) article {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 18px 40px rgba(236, 72, 153, 0.16);
+}
+
+:host(.metric-card--pm10_0) article {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 18px 40px rgba(245, 158, 11, 0.16);
+}
