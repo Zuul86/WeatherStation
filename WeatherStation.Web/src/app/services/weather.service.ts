@@ -12,6 +12,9 @@ interface WeatherReadingRaw {
   humidity?: number | string;
   pressure?: number | string;
   deviceId?: string | null;
+  pm1_0?: number | string;
+  pm2_5?: number | string;
+  pm10_0?: number | string;
 }
 
 interface GetWeatherReadingsResult {
@@ -20,6 +23,15 @@ interface GetWeatherReadingsResult {
 
 interface GetLatestReadingsResult {
   latestReadings: WeatherReadingRaw[];
+}
+
+interface PaginatedReadingsResult {
+  paginatedReadings: {
+    totalCount: number;
+    pageNumber: number;
+    pageSize: number;
+    items: WeatherReadingRaw[];
+  };
 }
 
 interface GetWeatherReadingResult {
@@ -43,6 +55,9 @@ export class WeatherService {
       humidity: Number(obj.humidity ?? 0),
       pressure: Number(obj.pressure ?? 0),
       deviceId: obj.deviceId ?? null,
+      pm1_0: Number(obj.pm1_0 ?? 0),
+      pm2_5: Number(obj.pm2_5 ?? 0),
+      pm10_0: Number(obj.pm10_0 ?? 0),
     };
   }
 
@@ -55,6 +70,9 @@ export class WeatherService {
         humidity
         pressure
         deviceId
+        pm1_0
+        pm2_5
+        pm10_0
       }
     }
   `;
@@ -68,6 +86,30 @@ export class WeatherService {
         humidity
         pressure
         deviceId
+        pm1_0
+        pm2_5
+        pm10_0
+      }
+    }
+  `;
+
+  private GET_PAGINATED_READINGS = gql`
+    query GetPaginatedReadings($pageNumber: Int!, $pageSize: Int!) {
+      paginatedReadings(pageNumber: $pageNumber, pageSize: $pageSize) {
+        totalCount
+        pageNumber
+        pageSize
+        items {
+          id
+          timestamp
+          temperatureFahrenheit
+          humidity
+          pressure
+          deviceId
+          pm1_0
+          pm2_5
+          pm10_0
+        }
       }
     }
   `;
@@ -81,6 +123,9 @@ export class WeatherService {
         humidity
         pressure
         deviceId
+        pm1_0
+        pm2_5
+        pm10_0
       }
     }
   `;
@@ -119,6 +164,30 @@ export class WeatherService {
             .map((item) => this.normalize(item as WeatherReadingRaw))
             .filter((reading): reading is WeatherReading => reading !== null),
         ),
+      );
+  }
+
+  getPaginatedReadings(pageNumber: number, pageSize: number): Observable<{ items: WeatherReading[]; totalCount: number; pageNumber: number; pageSize: number }> {
+    return this.apollo
+      .watchQuery<PaginatedReadingsResult>({
+        query: this.GET_PAGINATED_READINGS,
+        variables: { pageNumber, pageSize },
+        fetchPolicy: 'network-only',
+      })
+      .valueChanges.pipe(
+        map((r) => {
+          const page = r.data?.paginatedReadings;
+          const items = (page?.items ?? [])
+            .map((item) => this.normalize(item as WeatherReadingRaw))
+            .filter((reading): reading is WeatherReading => reading !== null);
+
+          return {
+            items,
+            totalCount: page?.totalCount ?? 0,
+            pageNumber: page?.pageNumber ?? pageNumber,
+            pageSize: page?.pageSize ?? pageSize,
+          };
+        }),
       );
   }
 

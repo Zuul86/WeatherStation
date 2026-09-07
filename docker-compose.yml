@@ -49,7 +49,7 @@ services:
     command:
       [
         "./daprd",
-        "--app-id", "Telemetry",
+        "--app-id", "telemetry",
         "--app-port", "8080",
         "--dapr-http-port", "3500",
         "--dapr-grpc-port", "50001",
@@ -87,7 +87,7 @@ services:
     command:
       [
         "./daprd",
-        "--app-id", "Api",
+        "--app-id", "api",
         "--app-port", "8080",
         "--dapr-http-port", "3501",
         "--dapr-grpc-port", "50002",

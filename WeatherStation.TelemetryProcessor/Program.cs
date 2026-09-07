@@ -53,5 +53,8 @@ public record TelemetryPayload(
     [property: JsonPropertyName("sensor_t")] double SensorT,
     [property: JsonPropertyName("sensor_bp")] double SensorBp,
     [property: JsonPropertyName("lat")] double Lat,
-    [property: JsonPropertyName("long")] double Long
+    [property: JsonPropertyName("long")] double Long,
+    [property: JsonPropertyName("pm1_0")] double Pm1_0 = 0,
+    [property: JsonPropertyName("pm2_5")] double Pm2_5 = 0,
+    [property: JsonPropertyName("pm10_0")] double Pm10_0 = 0
 );

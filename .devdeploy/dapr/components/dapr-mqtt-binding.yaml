@@ -16,5 +16,5 @@ spec:
   - name: consumerID
     value: "telemetry-processor-consumer"
 scopes:
-  - Telemetry
+  - telemetry
 

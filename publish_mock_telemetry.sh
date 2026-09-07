@@ -8,7 +8,10 @@ PAYLOAD='{
   "sensor_t": 23.8,
   "sensor_bp": 1012.35,
   "lat": 37.7749,
-  "long": -122.4194
+  "long": -122.4194,
+  "pm1_0": 5,
+  "pm2_5": 12,
+  "pm10_0": 18
 }'
 
 echo "Publishing payload: $PAYLOAD"
