@@ -9,7 +9,7 @@ on:
       - 'WeatherStation.ServiceDefaults/**'
       - 'WeatherStation.TelemetryProcessor/**'
       - 'WeatherStation.Web/**'
-      - 'deploy/**'
+      - '.devdeploy/**'
       - 'WeatherStation.slnx'
       - 'nuget.config'
       - '.github/workflows/deploy.yml'

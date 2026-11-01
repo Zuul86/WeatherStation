@@ -1,59 +1,82 @@
-# WeatherData
+# WeatherStation.Web (Angular Frontend)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.4.
+`WeatherStation.Web` is the Angular 22 dashboard application for the Weather Station monorepo. It connects to `WeatherStation.Api` via **Apollo Client (GraphQL)** and displays real-time environmental cards (temperature, humidity, barometric pressure, and PM1.0 / PM2.5 / PM10 air quality readings) along with a paginated historical readings table.
 
-## Development server
+---
 
-To start a local development server, run:
+## Tech Stack
 
-```bash
-ng serve
+* **Framework**: Angular 22 (Standalone Components)
+* **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`)
+* **Data Fetching**: Apollo Angular (`apollo-angular` v14 / `@apollo/client` v4) over GraphQL
+* **Unit Testing**: Vitest v4 (`ng test`)
+* **Production Server**: Nginx (`Dockerfile` + `nginx.conf`)
+
+---
+
+## Runtime Configuration (`config.json` & `docker-entrypoint.sh`)
+
+To allow the same compiled container image to run across local development, Docker Compose, .NET Aspire, and Azure Container Apps without rebuilding, the GraphQL API endpoint is loaded at runtime from [`public/assets/config.json`](public/assets/config.json) via [`ConfigService`](src/app/services/config.service.ts).
+
+1. **Default Local Config (`public/assets/config.json`)**:
+   ```json
+   {
+     "apiUrl": "http://localhost:5081/graphql"
+   }
+   ```
+2. **Container Startup Injection ([`docker-entrypoint.sh`](docker-entrypoint.sh))**:
+   When running inside the Nginx Docker container (under `.NET Aspire` or `Docker Compose` or `Azure Container Apps`), `docker-entrypoint.sh` inspects environment variables in priority order:
+   * `API_URL`
+   * `API_HTTP`
+   * `services__api__https__0` (injected automatically by .NET Aspire service discovery)
+   * `services__api__http__0` (injected automatically by .NET Aspire service discovery)
+
+   It automatically appends `/graphql` if not already present and writes the resolved URL to `/usr/share/nginx/html/assets/config.json` before starting Nginx.
+
+---
+
+## Application Structure
+
+```text
+src/app/
+├── components/
+│   ├── dashboard/           # Main dashboard layout & refresh/pagination controls
+│   ├── reading-card/        # Metric cards for Temp (°F), Humidity (%), Pressure (hPa), and PM levels
+│   └── readings-table/      # Paginated historical telemetry table
+├── models/
+│   └── weather-reading.model.ts  # TypeScript interfaces matching GraphQL schema
+├── services/
+│   ├── config.service.ts    # Fetches /assets/config.json before app initialization
+│   └── weather.service.ts   # Apollo GraphQL queries (latestReadings, paginatedReadings)
+├── app.config.ts            # Application providers, HttpClient, and Apollo initialization
+└── app.ts                   # Root component
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+---
 
-## Code scaffolding
+## Development Workflows
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### 1. Running Standalone via Angular CLI
+If `WeatherStation.Api` is already running on `http://localhost:5081`, you can run the Angular dev server directly with hot-module replacement:
 
 ```bash
-ng generate --help
+cd WeatherStation.Web
+npm install
+npm start
 ```
+Navigate to `http://localhost:4200/`.
 
-## Building
+### 2. Running via .NET Aspire or Docker Compose
+When you start the solution via `WeatherStation.AppHost` (`dotnet run`) or `docker compose up -d` from the repository root, `WeatherStation.Web` is built and served via its multi-stage [`Dockerfile`](Dockerfile) on `http://localhost:4200`.
 
-To build the project run:
-
+### 3. Building for Production
 ```bash
-ng build
+npm run build
 ```
+Build artifacts are output to `dist/weather-data/browser`.
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
+### 4. Running Unit Tests
+Unit tests are executed using **Vitest**:
 ```bash
-ng test
+npm test
 ```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

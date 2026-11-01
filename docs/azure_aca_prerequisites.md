@@ -64,7 +64,7 @@ az provider show --namespace Microsoft.Devices --query "registrationState" -o ts
    ```
 
 3. **Create the Required Consumer Group**:
-   The Dapr binding component (`deploy/dapr/components/dapr-mqtt-binding.yaml`) listens using the `telemetry-processor-consumer` consumer group:
+   The Dapr binding component (`mqtt-telemetry` provisioned in `WeatherStation.AppHost/Program.cs` and configured locally in `.devdeploy/dapr/components/dapr-mqtt-binding.yaml`) listens using the `telemetry-processor-consumer` consumer group:
    ```bash
    az iot hub consumer-group create \
      --hub-name "$IOTHUB_NAME" \

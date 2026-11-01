@@ -21,7 +21,7 @@ Do not use this agent for:
 Guidance:
 - use Aspire AppHost APIs as the single source of truth for cloud deployment topology
 - keep environment-specific values externalized in GitHub Actions variables/secrets or `Parameters__*` environment variables
-- preserve current deploy folder structure and reuse `deploy/dapr/components/` as the Dapr component source
+- preserve current deploy folder structure and reuse `.devdeploy/dapr/components/` as the local Dapr component source
 - prefer `aspire deploy` / `aspire publish` over manual infrastructure scripting
 
 Example prompts:

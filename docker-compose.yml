@@ -58,7 +58,7 @@ services:
         "--log-level", "info"
       ]
     volumes:
-      - ./deploy/dapr/components:/components:ro
+      - ./.devdeploy/dapr/components:/components:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -96,7 +96,7 @@ services:
         "--log-level", "info"
       ]
     volumes:
-      - ./deploy/dapr/components:/components:ro
+      - ./.devdeploy/dapr/components:/components:ro
     depends_on:
       postgres:
         condition: service_healthy
